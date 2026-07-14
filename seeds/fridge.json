@@ -1,0 +1,13 @@
+{
+  "band_c": [
+    2.0,
+    8.0
+  ],
+  "contents_value_usd": 8000,
+  "defrost_spec": "auto-defrost every 6h, approx 14 min, bounded +3.2C",
+  "fridge_id": "clinic-fridge-01",
+  "location": "two-room clinic (demo fixture; no real clinic data anywhere)",
+  "model": "LabCool VR-240 (demo fixture)",
+  "setpoint_c": 4.0,
+  "vfc_grade": "A"
+}

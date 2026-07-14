@@ -1,0 +1,15 @@
+{
+  "benign": false,
+  "cause": "door_ajar",
+  "citation_required": true,
+  "critical": true,
+  "min_confidence": 0.85,
+  "reflex_rules_expected": [
+    "door_timer",
+    "fast_rise"
+  ],
+  "required_actions": [
+    "sound_alarm",
+    "notify"
+  ]
+}

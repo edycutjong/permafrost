@@ -1,0 +1,35 @@
+# Virtualenv
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.coverage
+coverage.xml
+.mypy_cache/
+.ruff_cache/
+
+# Runtime artifacts
+*.db
+*.db-wal
+*.db-shm
+audit*.db*
+out/
+*.wav
+
+# Secrets — real deployments keep private keys OUT of the repo.
+# (The deterministic dev demo keys are derived in code, never stored.)
+*.key
+*.pem
+*.seed
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store

@@ -1,0 +1,65 @@
+{
+  "note": "CDC-style cold-chain guidance snippets, PARAPHRASED for this demo from public vaccine storage-and-handling practice. Not verbatim CDC text; cite the real CDC Vaccine Storage & Handling Toolkit in production.",
+  "snippets": [
+    {
+      "id": "band-2-8",
+      "source": "CDC-style Storage & Handling (paraphrase), Storage Units",
+      "title": "Refrigerated vaccines must be kept at 2-8 C",
+      "text": "Store refrigerated vaccines between 2 C and 8 C (36-46 F) with a target of 5 C. Any reading outside this band is a temperature excursion and must be documented and assessed before affected doses are used."
+    },
+    {
+      "id": "excursion-15min",
+      "source": "CDC-style Storage & Handling (paraphrase), Excursion Response",
+      "title": "Excursions beyond 15 minutes require assessment",
+      "text": "A temperature excursion above 8 C sustained for more than 15 minutes requires immediate action: label the vaccines DO NOT USE, keep them refrigerated, document the duration and peak temperature, and contact the manufacturer or state program before administering any dose."
+    },
+    {
+      "id": "door-seal",
+      "source": "CDC-style Storage & Handling (paraphrase), Storage Unit Care",
+      "title": "Door left ajar is a leading excursion cause",
+      "text": "A door left ajar or a worn door gasket is one of the most common causes of vaccine temperature excursions. Check that the door closes and seals automatically, use door alarms where available, and never store vaccines in the door shelves."
+    },
+    {
+      "id": "defrost-benign",
+      "source": "CDC-style Storage & Handling (paraphrase), Equipment",
+      "title": "Automatic defrost cycles cause brief benign spikes",
+      "text": "Household-grade and purpose-built units with automatic defrost produce short, recurring cabinet-temperature rises during the defrost cycle. Brief, bounded, periodic spikes that return to setpoint are expected equipment behavior and are not by themselves a reportable excursion, but they must remain within documented limits."
+    },
+    {
+      "id": "power-failure",
+      "source": "CDC-style Storage & Handling (paraphrase), Emergency Procedures",
+      "title": "Power failure protocol",
+      "text": "During a power failure keep storage unit doors closed, record the outage start and end, and record cabinet temperature as soon as power returns. Vaccines exposed during an outage must be marked DO NOT USE until viability is confirmed; do not discard doses before assessment by the manufacturer or immunization program."
+    },
+    {
+      "id": "do-not-discard",
+      "source": "CDC-style Storage & Handling (paraphrase), Excursion Response",
+      "title": "Do not discard vaccines before assessment",
+      "text": "Never discard vaccines after an excursion until the event has been assessed. Quarantine the doses at proper temperature, document the event, and obtain a viability determination from the manufacturer or the immunization program."
+    },
+    {
+      "id": "equipment-maintenance",
+      "source": "CDC-style Storage & Handling (paraphrase), Equipment",
+      "title": "Scheduled maintenance and aging compressors",
+      "text": "Storage units require routine preventive maintenance: clean coils, inspect door gaskets, and service compressors showing degraded performance such as a slowly rising average cabinet temperature or longer duty cycles. A drifting daily mean temperature with an intact defrost pattern suggests failing cooling capacity and warrants service before the unit exits the 2-8 C band."
+    },
+    {
+      "id": "tmd-logging",
+      "source": "CDC-style Storage & Handling (paraphrase), Monitoring",
+      "title": "Continuous temperature monitoring and record retention",
+      "text": "Use a continuous temperature monitoring device with the probe placed centrally among the vaccines. Review and record temperatures at least twice each workday, retain logs for at least three years, and investigate every out-of-range reading."
+    },
+    {
+      "id": "vfc-grade",
+      "source": "VFC-style Program Requirements (paraphrase)",
+      "title": "Program compliance grading",
+      "text": "Program participation requires documented, continuous cold-chain compliance. Repeated undocumented excursions or missing temperature logs downgrade a provider's compliance standing and can suspend vaccine allocation until corrective action is verified."
+    },
+    {
+      "id": "thermal-mass",
+      "source": "CDC-style Storage & Handling (paraphrase), Storage Practices",
+      "title": "Water bottles add thermal mass and slow excursions",
+      "text": "Keep water bottles in the refrigerator door and empty spaces. The added thermal mass slows cabinet warming during door openings and power failures, extending the time before stored vaccines reach unsafe temperatures."
+    }
+  ]
+}

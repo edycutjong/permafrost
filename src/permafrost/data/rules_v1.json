@@ -1,0 +1,78 @@
+{
+  "schema": "permafrost.rules/v1",
+  "version": 1,
+  "source": "builtin",
+  "created_ts": 0.0,
+  "rules": [
+    {
+      "id": "band_high",
+      "type": "threshold",
+      "field": "temp_c",
+      "op": ">",
+      "value": 8.0,
+      "sustain_s": 900,
+      "severity": "critical",
+      "actions": ["sound_alarm", "notify"],
+      "escalate": true,
+      "message": "Cabinet above 8C sustained 15 min (out of 2-8C band)"
+    },
+    {
+      "id": "band_low",
+      "type": "threshold",
+      "field": "temp_c",
+      "op": "<",
+      "value": 2.0,
+      "sustain_s": 900,
+      "severity": "critical",
+      "actions": ["sound_alarm", "notify"],
+      "escalate": true,
+      "message": "Cabinet below 2C sustained 15 min (freeze risk)"
+    },
+    {
+      "id": "fast_rise",
+      "type": "slope",
+      "per_min": 0.5,
+      "window_s": 300,
+      "severity": "watch",
+      "actions": ["notify"],
+      "escalate": true,
+      "message": "Rapid warming >= 0.5C/min"
+    },
+    {
+      "id": "door_timer",
+      "type": "door_timer",
+      "max_open_s": 120,
+      "severity": "critical",
+      "actions": ["sound_alarm", "notify"],
+      "escalate": true,
+      "message": "Door open 2 min or longer"
+    },
+    {
+      "id": "sample_gap",
+      "type": "gap",
+      "max_gap_s": 120,
+      "severity": "watch",
+      "actions": ["annotate_log", "notify"],
+      "escalate": true,
+      "message": "Telemetry gap (possible power loss)"
+    },
+    {
+      "id": "power_out",
+      "type": "power",
+      "severity": "watch",
+      "actions": ["notify"],
+      "escalate": true,
+      "message": "Mains power lost (UPS holding)"
+    },
+    {
+      "id": "slow_drift",
+      "type": "trend",
+      "per_day": 0.25,
+      "min_days": 3,
+      "severity": "watch",
+      "actions": ["notify"],
+      "escalate": true,
+      "message": "Multi-day warming trend"
+    }
+  ]
+}

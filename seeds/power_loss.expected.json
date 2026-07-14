@@ -1,0 +1,14 @@
+{
+  "benign": false,
+  "cause": "power_loss",
+  "citation_required": true,
+  "critical": true,
+  "min_confidence": 0.85,
+  "reflex_rules_expected": [
+    "power_out",
+    "sample_gap"
+  ],
+  "required_actions": [
+    "notify"
+  ]
+}

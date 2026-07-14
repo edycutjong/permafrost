@@ -1,0 +1,14 @@
+{
+  "benign": false,
+  "cause": "compressor_degradation",
+  "citation_required": false,
+  "critical": false,
+  "min_confidence": 0.8,
+  "reflex_rules_expected": [
+    "slow_drift",
+    "fast_rise"
+  ],
+  "required_actions": [
+    "schedule_service"
+  ]
+}

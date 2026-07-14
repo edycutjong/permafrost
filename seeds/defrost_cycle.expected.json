@@ -1,0 +1,13 @@
+{
+  "benign": true,
+  "cause": "defrost_cycle",
+  "citation_required": false,
+  "critical": false,
+  "min_confidence": 0.9,
+  "reflex_rules_expected": [
+    "fast_rise"
+  ],
+  "required_actions": [
+    "annotate_log"
+  ]
+}
