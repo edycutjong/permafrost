@@ -19,6 +19,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request
 
+from .. import __version__
 from ..crypto import SignatureInvalid, dev_keys, unseal
 from ..qwen import default_transport
 from ..qwen.transport import QwenTransport
@@ -48,7 +49,7 @@ def create_app(
         sealing_private_hex or os.environ.get("PERMAFROST_SEALING_PRIVATE") or keys.sealing_private
     )
 
-    app = FastAPI(title="Permafrost cloud brain", version="0.1.0")
+    app = FastAPI(title="Permafrost cloud brain", version=__version__)
     app.state.transport = transport
     app.state.guidance = GuidanceStore(transport)
     app.state.history = []  # verdict envelopes, in arrival order
