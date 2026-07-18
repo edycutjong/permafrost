@@ -29,7 +29,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-release = ["python-semantic-release>=9,<10"]
+release = ["python-semantic-release>=9,<11"]
 dev = [
     "pytest>=8.2",
     "pytest-cov>=5.0",
