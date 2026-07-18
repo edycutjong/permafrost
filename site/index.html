@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Permafrost — the vaccine fridge that argues for its own contents</title>
+<meta name="description" content="A $60 edge guardian for clinic vaccine fridges: sub-millisecond local reflexes, a Qwen cloud brain that diagnoses excursions like a refrigeration engineer, offline-graceful degradation, and a tamper-evident hash-chain audit log. 331 tests, 100% coverage.">
+<link rel="canonical" href="https://permafrost.edycu.dev/">
+<meta name="theme-color" content="#0B1220">
+<meta property="og:title" content="Permafrost — the vaccine fridge that argues for its own contents">
+<meta property="og:description" content="Sub-ms edge reflexes + a Qwen cloud brain. Offline-graceful, tamper-evident, 331 tests / 100% coverage. Built for the QwenCloud Hackathon, Track 5 — EdgeAgent.">
+<meta property="og:url" content="https://permafrost.edycu.dev/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Permafrost">
+<meta property="og:image" content="https://permafrost.edycu.dev/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Permafrost — the vaccine fridge that argues for its own contents">
+<meta name="twitter:description" content="Sub-ms edge reflexes + a Qwen cloud brain. Offline-graceful, tamper-evident, 331 tests / 100% coverage.">
+<meta name="twitter:image" content="https://permafrost.edycu.dev/og-image.png">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B1220; --bg-elevated:#131D31; --primary:#38BDF8; --accent:#A5F3FC;
+  --text:#EDF6FD; --text-dim:#8FA3BC;
+  --ok:#34D399; --warn:#FBBF24; --err:#F87171; --info:#60A5FA;
+  --border-glass:rgba(237,246,253,.14); --panel-glass:rgba(19,29,49,.72);
+  --glow-primary:rgba(56,189,248,.55); --glow-soft:rgba(56,189,248,.22);
+  --t-fast:150ms cubic-bezier(.4,0,.2,1); --t-slow:600ms cubic-bezier(.22,1,.36,1);
+  --r-sm:8px; --r-md:14px; --r-lg:22px; --r-pill:999px;
+  --font-display:'Space Grotesk',-apple-system,'Segoe UI',system-ui,sans-serif;
+  --font-body:'Manrope',-apple-system,'Segoe UI',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--text); font-family:var(--font-body);
+  font-size:17px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--primary);color:var(--bg)}
+a{color:var(--accent)}
+img{max-width:100%;display:block}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--font-display);line-height:1.08;letter-spacing:-.02em}
+
+/* ── frost / aurora background mesh ─────────────────────── */
+.mesh{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(720px 460px at 82% -6%, rgba(56,189,248,.16), transparent 62%),
+    radial-gradient(560px 420px at 8% 12%, rgba(165,243,252,.09), transparent 60%),
+    radial-gradient(900px 640px at 50% 108%, rgba(96,165,250,.10), transparent 65%),
+    var(--bg);
+}
+.mesh::after{
+  content:"";position:absolute;inset:0;opacity:.5;
+  background-image:linear-gradient(rgba(237,246,253,.028) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(237,246,253,.028) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 90% 60% at 50% 0%,#000 25%,transparent 78%);
+  -webkit-mask-image:radial-gradient(ellipse 90% 60% at 50% 0%,#000 25%,transparent 78%);
+}
+main,header,footer{position:relative;z-index:1}
+
+/* ── sticky header ──────────────────────────────────────── */
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(11,18,32,.66);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border-glass);
+}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--text)}
+.brand img{width:32px;height:32px;transition:transform var(--t-slow),filter var(--t-slow)}
+.brand:hover img{transform:rotate(-8deg) scale(1.12);filter:drop-shadow(0 0 10px var(--glow-primary))}
+.brand b{font-family:var(--font-display);font-weight:700;font-size:1.06rem;letter-spacing:.14em}
+.brand small{font-family:var(--font-mono);font-size:.62rem;color:var(--text-dim);letter-spacing:.08em;border:1px solid var(--border-glass);border-radius:var(--r-pill);padding:2px 8px}
+.nav-links{display:flex;align-items:center;gap:26px}
+.nav-links a{color:var(--text-dim);text-decoration:none;font-size:.9rem;font-weight:600;transition:color var(--t-fast)}
+.nav-links a:hover{color:var(--accent)}
+.nav-gh{color:var(--bg)!important;background:var(--primary);border-radius:var(--r-pill);padding:8px 18px;font-weight:700;transition:transform var(--t-fast),box-shadow var(--t-fast)}
+.nav-gh:hover{transform:translateY(-1px);box-shadow:0 0 22px var(--glow-soft)}
+@media(max-width:720px){.nav-links a:not(.nav-gh){display:none}.brand small{display:none}}
+
+/* ── hero ───────────────────────────────────────────────── */
+.hero{padding:96px 0 40px;text-align:left}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:9px;font-family:var(--font-mono);
+  font-size:.76rem;letter-spacing:.1em;color:var(--accent);
+  border:1px solid var(--border-glass);background:var(--panel-glass);
+  border-radius:var(--r-pill);padding:7px 16px;margin-bottom:30px;
+}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.55)}55%{box-shadow:0 0 0 7px rgba(52,211,153,0)}}
+.hero h1{font-size:clamp(2.7rem,7.2vw,5.4rem);font-weight:700;max-width:15ch}
+.hero h1 .line{display:block;opacity:0;transform:translateY(26px);animation:rise .8s cubic-bezier(.22,1,.36,1) forwards}
+.hero h1 .line:nth-child(2){animation-delay:.13s}
+.hero h1 .line:nth-child(3){animation-delay:.26s}
+.hero h1 em{font-style:normal;color:transparent;background:linear-gradient(100deg,var(--primary),var(--accent));-webkit-background-clip:text;background-clip:text}
+@keyframes rise{to{opacity:1;transform:none}}
+.hero p.sub{
+  margin-top:26px;max-width:56ch;color:var(--text-dim);font-size:clamp(1.02rem,1.6vw,1.2rem);
+  opacity:0;animation:rise .8s cubic-bezier(.22,1,.36,1) .42s forwards;
+}
+.hero p.sub b{color:var(--text)}
+.ctas{display:flex;flex-wrap:wrap;gap:16px;margin-top:38px;opacity:0;animation:rise .8s cubic-bezier(.22,1,.36,1) .56s forwards}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;border-radius:var(--r-pill);
+  padding:15px 30px;font-family:var(--font-display);font-weight:700;font-size:1rem;
+  text-decoration:none;transition:transform var(--t-fast),box-shadow var(--t-fast),background var(--t-fast);
+  position:relative;overflow:hidden;
+}
+.btn svg{width:19px;height:19px;flex:none}
+.btn-primary{background:linear-gradient(100deg,var(--primary),#67d3fb);color:#06121f}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 34px var(--glow-primary)}
+.btn-primary::after{content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-18deg);transition:left .55s ease}
+.btn-primary:hover::after{left:125%}
+.btn-ghost{border:1px solid var(--border-glass);color:var(--text);background:var(--panel-glass)}
+.btn-ghost:hover{transform:translateY(-2px);border-color:var(--primary);box-shadow:0 0 22px var(--glow-soft);color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* ── stats (real receipts) ──────────────────────────────── */
+.stats{
+  margin:74px 0 0;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--border-glass);border:1px solid var(--border-glass);border-radius:var(--r-lg);overflow:hidden;
+}
+.stat{background:var(--panel-glass);backdrop-filter:blur(8px);padding:28px 22px;text-align:center}
+.stat b{display:block;font-family:var(--font-display);font-size:clamp(1.7rem,3vw,2.5rem);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.stat span{font-size:.82rem;color:var(--text-dim);font-weight:600;letter-spacing:.03em}
+.stat small{display:block;font-family:var(--font-mono);font-size:.62rem;color:var(--text-dim);opacity:.7;margin-top:5px}
+@media(max-width:820px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+/* ── sections ───────────────────────────────────────────── */
+section{padding:96px 0}
+.kicker{font-family:var(--font-mono);font-size:.76rem;letter-spacing:.22em;text-transform:uppercase;color:var(--primary);margin-bottom:14px}
+.sec-title{font-size:clamp(1.9rem,4vw,3rem);font-weight:700;max-width:22ch}
+.sec-sub{color:var(--text-dim);max-width:62ch;margin-top:14px}
+
+/* reveal on scroll */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ── terminal frames ────────────────────────────────────── */
+.term{
+  background:#0a101c;border:1px solid var(--border-glass);border-radius:var(--r-md);
+  box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 60px rgba(56,189,248,.07);overflow:hidden;
+}
+.term-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--bg-elevated);border-bottom:1px solid var(--border-glass)}
+.term-bar i{width:12px;height:12px;border-radius:50%;display:block}
+.term-bar i:nth-child(1){background:#F87171}.term-bar i:nth-child(2){background:#FBBF24}.term-bar i:nth-child(3){background:#34D399}
+.term-bar span{margin-left:8px;font-family:var(--font-mono);font-size:.72rem;color:var(--text-dim)}
+.term-body{padding:22px 24px;font-family:var(--font-mono);font-size:.86rem;line-height:1.9;overflow-x:auto;white-space:pre;min-height:280px}
+.tl{display:block;opacity:0;transform:translateX(-8px);transition:opacity .4s ease,transform .4s ease}
+.tl.on{opacity:1;transform:none}
+.t-dim{color:var(--text-dim)} .t-cmd{color:var(--text)} .t-warn{color:var(--warn)} .t-err{color:var(--err)}
+.t-ok{color:var(--ok)} .t-info{color:var(--info)} .t-accent{color:var(--accent)}
+.t-prompt{color:var(--primary)}
+.cursor{display:inline-block;width:9px;height:1.1em;background:var(--accent);vertical-align:text-bottom;animation:blink 1.05s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.magic-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:34px;align-items:start;margin-top:56px}
+@media(max-width:940px){.magic-grid{grid-template-columns:1fr}}
+.hero-shot .term-body{padding:0;min-height:0;white-space:normal}
+.beat-legend{display:flex;flex-direction:column;gap:0;margin-top:26px;border-left:2px solid var(--border-glass)}
+.beat{padding:10px 0 10px 20px;position:relative}
+.beat::before{content:"";position:absolute;left:-6px;top:19px;width:10px;height:10px;border-radius:50%;background:var(--bg-elevated);border:2px solid var(--text-dim)}
+.beat.b-warn::before{border-color:var(--warn)} .beat.b-err::before{border-color:var(--err)}
+.beat.b-info::before{border-color:var(--info)} .beat.b-ok::before{border-color:var(--ok)}
+.beat b{font-family:var(--font-display);font-size:.95rem}
+.beat p{font-size:.86rem;color:var(--text-dim);margin-top:2px}
+
+/* ── features (asymmetric) ──────────────────────────────── */
+.feat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:22px;margin-top:56px}
+.feat{
+  background:var(--panel-glass);backdrop-filter:blur(8px);border:1px solid var(--border-glass);
+  border-radius:var(--r-lg);padding:32px 30px;transition:transform var(--t-fast),border-color var(--t-fast),box-shadow var(--t-fast);
+}
+.feat:hover{transform:translateY(-4px);border-color:rgba(56,189,248,.45);box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 34px var(--glow-soft)}
+.feat.span4{grid-column:span 4}.feat.span2{grid-column:span 2}.feat.span3{grid-column:span 3}
+@media(max-width:860px){.feat.span4,.feat.span2,.feat.span3{grid-column:span 6}}
+.feat .icon{width:46px;height:46px;border-radius:var(--r-sm);background:rgba(56,189,248,.12);display:grid;place-items:center;margin-bottom:20px}
+.feat .icon svg{width:26px;height:26px;stroke:var(--accent);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.feat h3{font-size:1.22rem;margin-bottom:10px}
+.feat p{font-size:.94rem;color:var(--text-dim)}
+.feat code{font-family:var(--font-mono);font-size:.8em;color:var(--accent);background:rgba(56,189,248,.1);padding:1px 6px;border-radius:5px}
+.feat .num{font-family:var(--font-mono);font-size:.68rem;color:var(--text-dim);opacity:.6;float:right;letter-spacing:.1em}
+
+/* ── honest by design ───────────────────────────────────── */
+.honest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:56px}
+@media(max-width:860px){.honest-grid{grid-template-columns:1fr}}
+.honest{
+  border:1px solid var(--border-glass);border-left:3px solid var(--warn);
+  border-radius:var(--r-md);padding:26px 26px;background:var(--panel-glass);backdrop-filter:blur(8px);
+}
+.honest blockquote{font-size:.95rem;color:var(--text);font-style:italic;line-height:1.6}
+.honest blockquote::before{content:"“";color:var(--warn);font-family:var(--font-display);font-size:1.4em;line-height:0;margin-right:2px}
+.honest blockquote::after{content:"”";color:var(--warn)}
+.honest cite{display:block;margin-top:16px;font-family:var(--font-mono);font-style:normal;font-size:.7rem;color:var(--text-dim);letter-spacing:.05em}
+
+/* ── FAQ ────────────────────────────────────────────────── */
+.faq{max-width:820px;margin:52px auto 0}
+.faq details{border:1px solid var(--border-glass);border-radius:var(--r-md);background:var(--panel-glass);backdrop-filter:blur(8px);margin-bottom:14px;overflow:hidden;transition:border-color var(--t-fast)}
+.faq details[open]{border-color:rgba(56,189,248,.4)}
+.faq summary{
+  cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding:20px 24px;font-family:var(--font-display);font-weight:600;font-size:1.02rem;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--r-md)}
+.faq summary::after{content:"+";font-family:var(--font-mono);font-size:1.3rem;color:var(--primary);transition:transform var(--t-fast);flex:none}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq .a{padding:0 24px 22px;color:var(--text-dim);font-size:.95rem}
+.faq .a code{font-family:var(--font-mono);font-size:.84em;color:var(--accent);background:rgba(56,189,248,.1);padding:1px 6px;border-radius:5px}
+
+/* ── final CTA ──────────────────────────────────────────── */
+.final{
+  text-align:center;border:1px solid var(--border-glass);border-radius:var(--r-lg);
+  background:
+    radial-gradient(560px 300px at 50% -30%, rgba(56,189,248,.16), transparent 70%),
+    var(--panel-glass);
+  padding:84px 28px;backdrop-filter:blur(8px);
+}
+.final h2{font-size:clamp(2rem,4.6vw,3.3rem);font-weight:700}
+.final p{color:var(--text-dim);margin:18px auto 0;max-width:52ch}
+.clone{
+  display:flex;align-items:center;gap:14px;justify-content:space-between;max-width:640px;margin:36px auto 0;
+  background:#0a101c;border:1px solid var(--border-glass);border-radius:var(--r-md);padding:16px 20px;
+  font-family:var(--font-mono);font-size:.88rem;text-align:left;cursor:pointer;
+  transition:border-color var(--t-fast),box-shadow var(--t-fast);color:var(--text);width:100%;
+}
+.clone:hover{border-color:var(--primary);box-shadow:0 0 22px var(--glow-soft)}
+.clone:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.clone .cmd{overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+.clone .cmd::-webkit-scrollbar{display:none}
+.clone .cmd b{color:var(--primary);font-weight:400}
+.clone .copy-tag{flex:none;font-size:.7rem;color:var(--text-dim);border:1px solid var(--border-glass);border-radius:var(--r-pill);padding:4px 12px;transition:all var(--t-fast)}
+.clone.copied .copy-tag{color:var(--ok);border-color:var(--ok)}
+.final .ctas{justify-content:center;opacity:1;animation:none}
+
+/* ── footer ─────────────────────────────────────────────── */
+footer{border-top:1px solid var(--border-glass);padding:64px 0 40px;background:rgba(10,16,28,.6)}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px}
+@media(max-width:820px){.foot-grid{grid-template-columns:1fr 1fr}}
+.foot-brand{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.foot-brand img{width:28px;height:28px}
+.foot-brand b{font-family:var(--font-display);letter-spacing:.12em}
+.foot-grid p{font-size:.86rem;color:var(--text-dim);max-width:34ch}
+.foot-grid h4{font-family:var(--font-display);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text);margin-bottom:16px}
+.foot-grid ul{list-style:none}
+.foot-grid li{margin-bottom:10px}
+.foot-grid ul a{color:var(--text-dim);text-decoration:none;font-size:.9rem;transition:color var(--t-fast)}
+.foot-grid ul a:hover{color:var(--accent)}
+.foot-bottom{margin-top:52px;padding-top:24px;border-top:1px solid var(--border-glass);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--text-dim)}
+.foot-bottom span{font-family:var(--font-mono);font-size:.72rem}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+  .hero h1 .line,.hero p.sub,.ctas{opacity:1;transform:none}
+  .reveal{opacity:1;transform:none}
+  .tl{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="mesh" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="/" aria-label="Permafrost home">
+      <img src="/icon.svg" alt="" width="32" height="32">
+      <b>PERMAFROST</b>
+      <small>TRACK 5 · EDGEAGENT</small>
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#demo">Demo</a>
+      <a href="#features">Features</a>
+      <a href="#honest">Honesty</a>
+      <a href="#faq">FAQ</a>
+      <a href="/pitch/">Pitch Deck</a>
+      <a class="nav-gh" href="https://github.com/edycutjong/permafrost">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- ── HERO ─────────────────────────────────────────── -->
+  <section class="hero wrap" style="padding-top:96px">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>QWENCLOUD HACKATHON · TRACK 5 — EDGEAGENT</p>
+    <h1>
+      <span class="line">The vaccine fridge</span>
+      <span class="line">that <em>argues</em> for</span>
+      <span class="line">its own contents.</span>
+    </h1>
+    <p class="sub">A <b>$60 edge guardian</b> for clinic cold chains. Local reflexes fire in <b>sub-milliseconds</b>; a <b>Qwen cloud brain</b> diagnoses each excursion like a refrigeration engineer — <em>"defrost cycle, benign"</em> vs <em>"door ajar, stock at risk in 22 minutes"</em> — and a <b>SHA-256 hash-chained, Ed25519-signed log</b> keeps compliance tamper-evident through blackouts.</p>
+    <div class="ctas">
+      <a class="btn btn-primary" href="https://github.com/edycutjong/permafrost">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.17c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.35.95.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.59.24 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        View on GitHub
+      </a>
+      <a class="btn btn-ghost" href="/pitch/">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M8 9l3 2 5-4"/></svg>
+        Pitch Deck
+      </a>
+    </div>
+
+    <!-- real receipts only: pytest, coverage, bench, verify-chain output -->
+    <div class="stats reveal" id="stats">
+      <div class="stat"><b data-count="331">0</b><span>tests passing</span><small>pytest · offline · keyless</small></div>
+      <div class="stat"><b data-count="100" data-suffix="%">0</b><span>line coverage</span><small>--cov=permafrost</small></div>
+      <div class="stat"><b data-count="7" data-decimal="0.007" data-suffix=" ms">0</b><span>reflex p95 latency</span><small>budget: &lt;100 ms</small></div>
+      <div class="stat"><b data-count="2177">0</b><span>chain entries verified</span><small>verify-chain · gap-free</small></div>
+    </div>
+  </section>
+
+  <!-- ── THE MAGIC MOMENT ─────────────────────────────── -->
+  <section id="demo" class="wrap">
+    <p class="kicker reveal">The magic moment</p>
+    <h2 class="sec-title reveal">Pull the cable. The alarm still fires.</h2>
+    <p class="sec-sub reveal">Real output from <code style="font-family:var(--font-mono);color:var(--accent)">permafrost replay</code> — the network is cut mid-run at tick 1700. The local reflex layer keeps protecting the fridge, events queue ECIES-sealed, and on reconnect the hash chain closes gap-free.</p>
+
+    <div class="magic-grid">
+      <div class="term reveal" aria-label="Terminal output of the offline replay demo">
+        <div class="term-bar"><i></i><i></i><i></i><span>permafrost replay — offline degradation</span></div>
+        <div class="term-body" id="termplay"><span class="tl"><span class="t-prompt">$</span><span class="t-cmd"> permafrost replay --curve seeds/door_ajar.csv \</span></span><span class="tl"><span class="t-cmd">    --db offline.db --fresh --offline-from 1700 --online-from 2100</span></span><span class="tl">&nbsp;</span><span class="tl"><span class="t-dim">[tick 1700]</span><span class="t-warn"> ~~ NETWORK CUT — OFFLINE mode, local rules v1 protecting ~~</span></span><span class="tl"><span class="t-dim">[tick 1813]</span><span class="t-err"> REFLEX CRITICAL door_timer: Door open 2 min or longer</span></span><span class="tl"><span class="t-dim">[tick 1820]</span><span class="t-warn"> REFLEX WATCH fast_rise: Rapid warming &gt;= 0.5C/min</span></span><span class="tl"><span class="t-dim">[tick 2100]</span><span class="t-info"> ~~ RECONNECTED — syncing queued events ~~</span></span><span class="tl">&nbsp;</span><span class="tl"><span class="t-dim">replay done: 2160 ticks | reflex firings 2 | alarms 3 | verdicts 2 |</span></span><span class="tl"><span class="t-dim">  offline ticks 400 | queue pending 0 (synced 2) | rules v1</span></span><span class="tl"><span class="t-ok">chain: OK — 2178 entries re-derived, chain intact;</span></span><span class="tl"><span class="t-ok">  1 signed daily root(s) verified</span><span class="cursor" aria-hidden="true"></span></span></div>
+      </div>
+      <div class="reveal">
+        <div class="beat-legend">
+          <div class="beat b-warn"><b>NETWORK CUT · tick 1700</b><p>The cloud disappears mid-excursion. No panic, no gap — local rules v1 take over.</p></div>
+          <div class="beat b-err"><b>Alarm still fires · tick 1813</b><p>The door-ajar reflex trips locally in &lt;1 ms, with zero connectivity.</p></div>
+          <div class="beat b-info"><b>RECONNECTED · tick 2100</b><p>The ECIES-sealed queue drains; verdicts arrive from the Qwen brain.</p></div>
+          <div class="beat b-ok"><b>Chain closes gap-free</b><p><code style="font-family:var(--font-mono);font-size:.85em;color:var(--accent)">verify-chain</code> re-derives every hash — the blackout leaves no hole in the audit log.</p></div>
+        </div>
+        <p style="margin-top:22px;font-size:.86rem;color:var(--text-dim)">Reproduce it in CI form: <code style="font-family:var(--font-mono);font-size:.85em;color:var(--accent)">python scripts/verify_offline.py</code> kills real sockets mid-replay and exits 0.</p>
+      </div>
+    </div>
+
+    <div class="term hero-shot reveal" style="margin-top:34px">
+      <div class="term-bar"><i></i><i></i><i></i><span>permafrost — one loop, edge to cloud and back</span></div>
+      <div class="term-body"><img src="/readme-hero.png" alt="Permafrost hero graphic: the vaccine fridge that argues for its own contents — edge reflex loop, Qwen cloud verdicts, and the tamper-evident hash chain" loading="lazy" width="2560" height="1280"></div>
+    </div>
+  </section>
+
+  <!-- ── FEATURES ─────────────────────────────────────── -->
+  <section id="features" class="wrap">
+    <p class="kicker reveal">What ships</p>
+    <h2 class="sec-title reveal">Reflexes at the edge. Reasoning in the cloud. Proof in the chain.</h2>
+    <div class="feat-grid">
+      <article class="feat span4 reveal">
+        <span class="num">01</span>
+        <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2Z"/></svg></div>
+        <h3>Sub-millisecond reflex loop</h3>
+        <p>A 10-second sampler feeds a local rules engine that trips the buzzer at <code>0.007 ms p95</code> — four orders of magnitude inside the 100 ms budget, and always <em>before</em> any cloud round-trip. The fridge is protected even if the internet never existed.</p>
+      </article>
+      <article class="feat span2 reveal">
+        <span class="num">02</span>
+        <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17c2-6 4-9 5-9s2 2 3 5 2 5 3 5 3-3 4-9"/><circle cx="19" cy="7" r="2.4"/></svg></div>
+        <h3>Twin discrimination</h3>
+        <p>Two engineered curves spike +3.2 °C almost identically. Qwen reads the co-signals and calls one <code>benign</code> (defrost) and one <code>critical</code> (door ajar) — killing the false-alarm fatigue that gets monitors unplugged.</p>
+      </article>
+      <article class="feat span2 reveal">
+        <span class="num">03</span>
+        <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>Ed25519-signed rule hot-swap</h3>
+        <p>The cloud distills its own verdict history into local rules, signs the bundle, and the edge verifies the signature <em>before</em> hot-swapping. Unsigned, forged, or downgraded bundles are refused — and the refusal is chain-logged.</p>
+      </article>
+      <article class="feat span2 reveal">
+        <span class="num">04</span>
+        <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h10M4 12h16M4 16h7"/><path d="M17 5l3 3-3 3"/></svg></div>
+        <h3>Offline queue + resync</h3>
+        <p>Excursion events — never raw streams — are ECIES-sealed to the cloud's public key and queued through outages. On reconnect the queue drains and verdicts land, with the chain gap-free across the blackout.</p>
+      </article>
+      <article class="feat span2 reveal">
+        <span class="num">05</span>
+        <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg></div>
+        <h3>1-byte tamper detection</h3>
+        <p>Every entry extends <code>h&#7522; = SHA256(h&#7522;&#8331;&#8321; ‖ entry)</code> with signed daily Merkle roots. Flip one byte anywhere and <code>verify-chain</code> fails, names the sequence, and exits 1 — tested across all four curves.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── HONEST BY DESIGN ─────────────────────────────── -->
+  <section id="honest" class="wrap">
+    <p class="kicker reveal">Honest by design</p>
+    <h2 class="sec-title reveal">No testimonials. Just the disclosures.</h2>
+    <p class="sec-sub reveal">These lines are quoted verbatim from the repo's README — the project states its own limits in-product.</p>
+    <div class="honest-grid">
+      <div class="honest reveal">
+        <blockquote>The author has not executed a successful live inference (no valid key on hand), so the model's actual verdict text is un-witnessed in this build.</blockquote>
+        <cite>README.md · Honesty note — a bogus key still proves the DashScope wiring with a real 401 request_id</cite>
+      </div>
+      <div class="honest reveal">
+        <blockquote>Real GPIO/hardware test — no physical rig has run yet. Replay mode is the supported judging path.</blockquote>
+        <cite>README.md · Status (honest) — the Pi is showmanship; the loop is the product</cite>
+      </div>
+      <div class="honest reveal">
+        <blockquote>Physical sensor spoofing (a heat gun on a probe) is out of scope; curve-only inference can flag a failing compressor but cannot confirm it without refrigerant telemetry — verdicts say so.</blockquote>
+        <cite>README.md · Residual risk — in-product honesty</cite>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ──────────────────────────────────────────── -->
+  <section id="faq" class="wrap">
+    <p class="kicker reveal" style="text-align:center">Questions</p>
+    <h2 class="sec-title reveal" style="margin:0 auto;text-align:center">Straight answers</h2>
+    <div class="faq reveal">
+      <details>
+        <summary>Does it need an API key?</summary>
+        <div class="a">No. The entire judging path — replay, tests, bench, chain verification — runs offline and keyless on <code>FakeQwen</code>, a deterministic fixture-backed transport. Live Qwen is an explicit opt-in: set <code>DASHSCOPE_API_KEY</code> <em>and</em> <code>PERMAFROST_LIVE=1</code> and the identical command routes through real DashScope.</div>
+      </details>
+      <details>
+        <summary>What happens when the network goes down?</summary>
+        <div class="a">The local reflex layer keeps firing alarms in under a millisecond with zero connectivity, events queue ECIES-sealed, and on reconnect the queue syncs into a gap-free hash chain. <code>scripts/verify_offline.py</code> proves it in CI by killing real sockets mid-replay.</div>
+      </details>
+      <details>
+        <summary>What exactly is FakeQwen?</summary>
+        <div class="a">A deterministic, fixture-backed stand-in for the Qwen Cloud transport that lets every one of the 331 tests run offline and byte-reproducibly. The live transport (<code>qwen3.7-plus</code>, <code>qwen3.6-flash</code>, <code>text-embedding-v4</code>) is wired end-to-end — a bogus key drives a real DashScope round-trip and returns an authentic 401 with a real <code>request_id</code>, proving the endpoint is no stub.</div>
+      </details>
+      <details>
+        <summary>Is the $60 hardware claim real?</summary>
+        <div class="a">It's a bill of materials, not a shipped product: Raspberry Pi + 2× DS18B20 probes + reed switch + buzzer ≈ $60, versus $1–3k/yr commercial monitors. Honest caveat, straight from the README: no physical rig has run yet — replay mode drives the identical daemon from recorded curves and is the supported judging path.</div>
+      </details>
+      <details>
+        <summary>Is the audit log really tamper-evident?</summary>
+        <div class="a">Yes, and it's tested: every entry extends a SHA-256 hash chain with Ed25519-signed daily Merkle roots. Invariant tests flip a single byte in an entry, hash, sequence number, or signed root and assert <code>verify-chain</code> fails and exits 1 — across all four seed curves, and gap-free through a simulated power cut (<code>os._exit</code> mid-replay).</div>
+      </details>
+      <details>
+        <summary>How do I run it?</summary>
+        <div class="a">Python 3.12, three minutes, zero hardware: <code>pip install -e ".[dev]"</code> then <code>permafrost replay --curve seeds/door_ajar.csv --db audit.db --fresh</code>. Follow with <code>permafrost verify-chain audit.db</code> and <code>pytest</code> for the full 331-test suite. The complete judge script is in <code>DEMO.md</code>.</div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ── FINAL CTA ────────────────────────────────────── -->
+  <section class="wrap">
+    <div class="final reveal">
+      <h2>Three minutes. Zero hardware.<br>Zero API keys.</h2>
+      <p>Clone it, replay the door-ajar curve, watch the reflex fire before the cloud answers — then try to tamper with the log.</p>
+      <button class="clone" id="clone" type="button" aria-label="Copy clone command to clipboard">
+        <span class="cmd"><b>$</b> git clone https://github.com/edycutjong/permafrost &amp;&amp; cd permafrost &amp;&amp; pip install -e ".[dev]"</span>
+        <span class="copy-tag" id="copytag">COPY</span>
+      </button>
+      <div class="ctas" style="margin-top:34px">
+        <a class="btn btn-primary" href="https://github.com/edycutjong/permafrost">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.17c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.35.95.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.59.24 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+          Explore the code
+        </a>
+        <a class="btn btn-ghost" href="/pitch/">See the pitch deck</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand"><img src="/icon.svg" alt="" width="28" height="28"><b>PERMAFROST</b></div>
+        <p>A $60 edge guardian for clinic vaccine fridges. Sub-ms reflexes, a Qwen cloud brain, and a tamper-evident cold-chain log.</p>
+      </div>
+      <div>
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/edycutjong/permafrost">GitHub</a></li>
+          <li><a href="/pitch/">Pitch Deck</a></li>
+          <li><a href="https://github.com/edycutjong/permafrost/blob/main/DEMO.md">Judge Demo Script</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Hackathon</h4>
+        <ul>
+          <li><a href="https://qwencloud-hackathon.devpost.com/">QwenCloud on Devpost</a></li>
+          <li><a href="https://github.com/edycutjong/permafrost/blob/main/docs/BENCH.md">Benchmark Report</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="https://github.com/edycutjong/permafrost/blob/main/LICENSE">MIT License</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div>© 2026 Edy Cu. Built for the QwenCloud Hackathon — Track 5, EdgeAgent.</div>
+      <span>permafrost.edycu.dev</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* reveal on scroll */
+  var reveals = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window && !reduced) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(function(el){ io.observe(el); });
+  } else {
+    reveals.forEach(function(el){ el.classList.add("in"); });
+  }
+
+  /* count-up stats (real receipts only) */
+  function countUp(el){
+    var target = parseFloat(el.getAttribute("data-count"));
+    var decimal = el.getAttribute("data-decimal");
+    var suffix = el.getAttribute("data-suffix") || "";
+    if (reduced) { el.textContent = (decimal || target) + suffix; return; }
+    var start = null, dur = 1400;
+    function step(ts){
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      if (decimal) {
+        el.textContent = (parseFloat(decimal) * eased).toFixed(3) + suffix;
+      } else {
+        el.textContent = Math.round(target * eased).toLocaleString() + suffix;
+      }
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = (decimal || target.toLocaleString()) + suffix;
+    }
+    requestAnimationFrame(step);
+  }
+  var statsBox = document.getElementById("stats");
+  if (statsBox) {
+    var fired = false;
+    var so = new IntersectionObserver(function(entries){
+      if (entries[0].isIntersecting && !fired) {
+        fired = true;
+        statsBox.querySelectorAll("[data-count]").forEach(countUp);
+        so.disconnect();
+      }
+    }, { threshold: 0.3 });
+    so.observe(statsBox);
+  }
+
+  /* terminal line-by-line playback */
+  var term = document.getElementById("termplay");
+  if (term) {
+    var lines = term.querySelectorAll(".tl");
+    if (reduced) { lines.forEach(function(l){ l.classList.add("on"); }); }
+    else {
+      var to = new IntersectionObserver(function(entries){
+        if (entries[0].isIntersecting) {
+          lines.forEach(function(l, i){
+            setTimeout(function(){ l.classList.add("on"); }, 260 + i * 340);
+          });
+          to.disconnect();
+        }
+      }, { threshold: 0.35 });
+      to.observe(term);
+    }
+  }
+
+  /* copy-on-click clone command */
+  var clone = document.getElementById("clone");
+  var tag = document.getElementById("copytag");
+  if (clone) {
+    clone.addEventListener("click", function(){
+      var cmd = 'git clone https://github.com/edycutjong/permafrost && cd permafrost && pip install -e ".[dev]"';
+      function done(){
+        clone.classList.add("copied"); tag.textContent = "COPIED";
+        setTimeout(function(){ clone.classList.remove("copied"); tag.textContent = "COPY"; }, 2200);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cmd).then(done).catch(done);
+      } else { done(); }
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<!--
+  PERMAFROST — 10-slide pitch deck (single file)
+  ─ Navigation: ← / → arrows, SPACE advances, ESC toggles overview grid
+  ─ "P" toggles presenter mode (speaker notes panel, bottom)
+  ─ "C" toggles contrast debug borders
+  ─ Print to PDF: Cmd/Ctrl+P → Save as PDF → landscape → 10 clean pages
+  ─ Images are REAL repo assets (../readme-hero.png, ../og-image.png, ../icon.svg)
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Permafrost — Pitch Deck</title>
+<meta name="description" content="10-slide pitch deck for Permafrost: a $60 edge guardian for vaccine fridges — sub-ms local reflexes, a Qwen cloud brain, and a tamper-evident hash-chain audit log. Built for the Global AI Hackathon with Qwen Cloud.">
+<link rel="canonical" href="https://permafrost.edycu.dev/pitch/">
+<meta name="theme-color" content="#0B1220">
+<meta property="og:title" content="Permafrost — Pitch Deck">
+<meta property="og:description" content="A $60 edge guardian for vaccine fridges: sub-ms reflexes, Qwen cloud diagnosis, tamper-evident chain. 331 tests / 100% coverage.">
+<meta property="og:url" content="https://permafrost.edycu.dev/pitch/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Permafrost">
+<meta property="og:image" content="https://permafrost.edycu.dev/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Permafrost — Pitch Deck">
+<meta name="twitter:description" content="A $60 edge guardian for vaccine fridges: sub-ms reflexes, Qwen cloud diagnosis, tamper-evident chain.">
+<meta name="twitter:image" content="https://permafrost.edycu.dev/og-image.png">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --color-bg:#0B1220; --color-elevated:#131D31;
+  --color-primary:#38BDF8; --color-accent:#A5F3FC;
+  --text:#EDF6FD; --dim:#8FA3BC;
+  --ok:#34D399; --warn:#FBBF24; --err:#F87171; --info:#60A5FA;
+  --line:rgba(237,246,253,.14); --panel:rgba(19,29,49,.72);
+  --font-display:'Space Grotesk',"Inter Tight",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --font-body:'Manrope',-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#060b14;color:var(--text);font-family:var(--font-body);overflow:hidden}
+h1,h2,h3{font-family:var(--font-display);letter-spacing:-.02em;line-height:1.05}
+img{display:block;max-width:100%}
+
+/* fixed 1920x1080 stage, scaled to fit — letterbox the browser, never the slide */
+#viewport{position:fixed;inset:0;display:grid;place-items:center}
+#stage{width:1920px;height:1080px;position:relative;transform-origin:center center;flex:none}
+
+.slide{
+  position:absolute;inset:0;width:1920px;height:1080px;padding:110px 130px;
+  background:
+    radial-gradient(760px 480px at 84% -8%, rgba(56,189,248,.14), transparent 62%),
+    radial-gradient(620px 460px at 6% 110%, rgba(96,165,250,.09), transparent 62%),
+    var(--color-bg);
+  display:none;flex-direction:column;overflow:hidden;
+}
+.slide.active{display:flex}
+.slide::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.45;
+  background-image:linear-gradient(rgba(237,246,253,.025) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(237,246,253,.025) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 85% 65% at 50% 10%,#000 20%,transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse 85% 65% at 50% 10%,#000 20%,transparent 80%);
+}
+.slide>*{position:relative;z-index:1}
+.tag{font-family:var(--font-mono);font-size:15px;letter-spacing:.24em;text-transform:uppercase;color:var(--color-primary);margin-bottom:26px}
+.speaker-notes{display:none}
+
+/* shared bits */
+.mono{font-family:var(--font-mono)}
+.acc{color:var(--color-accent)}
+.pri{color:var(--color-primary)}
+.dim{color:var(--dim)}
+.badge{
+  display:inline-flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:15px;
+  color:var(--color-accent);border:1px solid var(--line);background:var(--panel);
+  border-radius:999px;padding:10px 22px;letter-spacing:.06em;
+}
+.badge .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);animation:pulse 2.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.5)}55%{box-shadow:0 0 0 9px rgba(52,211,153,0)}}
+.term{background:#0a101c;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.55)}
+.term-bar{display:flex;align-items:center;gap:9px;padding:13px 18px;background:var(--color-elevated);border-bottom:1px solid var(--line)}
+.term-bar i{width:13px;height:13px;border-radius:50%}
+.term-bar i:nth-child(1){background:#F87171}.term-bar i:nth-child(2){background:#FBBF24}.term-bar i:nth-child(3){background:#34D399}
+.term-bar span{margin-left:8px;font-family:var(--font-mono);font-size:13px;color:var(--dim)}
+.callout{
+  position:absolute;width:44px;height:44px;border-radius:50%;background:var(--color-primary);color:#06121f;
+  font-family:var(--font-mono);font-weight:700;font-size:20px;display:grid;place-items:center;
+  box-shadow:0 0 0 5px rgba(56,189,248,.25);
+}
+
+/* ── SLIDE 1 · COVER ── */
+.s1{justify-content:center}
+.s1 .cover-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:80px;align-items:center}
+.s1 h1{font-size:130px;font-weight:700}
+.s1 h1 em{font-style:normal;color:transparent;background:linear-gradient(100deg,var(--color-primary),var(--color-accent));-webkit-background-clip:text;background-clip:text}
+.s1 .tagline{font-size:30px;color:var(--dim);margin-top:30px;max-width:22ch;line-height:1.4}
+.s1 .brandline{display:flex;align-items:center;gap:18px;margin-bottom:34px}
+.s1 .brandline img{width:64px;height:64px}
+.s1 .brandline b{font-family:var(--font-display);font-size:26px;letter-spacing:.2em}
+.s1 .term-body{padding:26px 30px;font-family:var(--font-mono);font-size:19px;line-height:2}
+.typing::after{content:"";display:inline-block;width:11px;height:1.15em;background:var(--color-accent);vertical-align:text-bottom;margin-left:4px;animation:blink 1.05s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* ── SLIDE 2 · HOOK ── */
+.s2{justify-content:center}
+.s2 h2{font-size:104px;font-weight:700;max-width:16ch}
+.s2 h2 b{color:var(--err)}
+.s2 p{font-size:32px;color:var(--dim);margin-top:44px;max-width:44ch}
+
+/* ── SLIDE 3 · PROBLEM ── */
+.s3 .cols{display:grid;grid-template-columns:1.1fr .9fr;gap:90px;align-items:center;flex:1}
+.s3 h2{font-size:84px;font-weight:700}
+.s3 .story{font-size:27px;color:var(--dim);line-height:1.6;margin-top:36px;max-width:44ch}
+.s3 .story b{color:var(--text)}
+.s3 .ledger{border-left:3px solid var(--err);padding-left:36px;display:flex;flex-direction:column;gap:34px}
+.s3 .ledger div b{font-family:var(--font-display);font-size:46px;color:var(--err);display:block}
+.s3 .ledger div span{font-size:20px;color:var(--dim)}
+
+/* ── SLIDE 4 · SOLUTION ── */
+.s4 .cols{display:grid;grid-template-columns:.9fr 1.1fr;gap:70px;align-items:center;flex:1}
+.s4 h2{font-size:72px;font-weight:700}
+.s4 p{font-size:25px;color:var(--dim);margin-top:30px;max-width:38ch;line-height:1.55}
+.s4 p b{color:var(--color-accent)}
+.s4 .term-body{padding:0}
+
+/* ── SLIDE 5 · HOW IT WORKS ── */
+.s5 h2{font-size:64px;font-weight:700;margin-bottom:56px}
+.arch{display:grid;grid-template-columns:1fr 84px 1fr 84px 1fr;align-items:stretch;gap:0;flex:1;max-height:560px}
+.arch .box{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:34px 36px;display:flex;flex-direction:column;gap:16px}
+.arch .box h3{font-size:26px;letter-spacing:.06em}
+.arch .box h3 small{display:block;font-family:var(--font-mono);font-size:13px;color:var(--dim);letter-spacing:.14em;margin-top:6px;font-weight:400}
+.arch .row{font-family:var(--font-mono);font-size:16.5px;color:var(--dim);border:1px solid var(--line);border-radius:9px;padding:11px 15px;background:rgba(11,18,32,.6)}
+.arch .row b{color:var(--color-accent);font-weight:500}
+.arch .flow{display:flex;flex-direction:column;justify-content:center;gap:18px;align-items:center}
+.arch .flow .arrow{font-family:var(--font-mono);font-size:26px;color:var(--color-primary)}
+.arch .flow .lbl{font-family:var(--font-mono);font-size:12.5px;color:var(--dim);text-align:center;line-height:1.5}
+.arch .box.edge{border-color:rgba(56,189,248,.5);box-shadow:0 0 44px rgba(56,189,248,.10)}
+.s5 .loopnote{margin-top:44px;font-family:var(--font-mono);font-size:18px;color:var(--dim);text-align:center}
+.s5 .loopnote b{color:var(--ok);font-weight:500}
+
+/* ── SLIDE 6 · LIVE DEMO ── */
+.s6 h2{font-size:64px;font-weight:700;margin-bottom:46px}
+.s6 .demo-wrap{position:relative;flex:1;display:grid;grid-template-columns:1.25fr .75fr;gap:56px;align-items:start}
+.s6 .term-body{padding:30px 34px;font-family:var(--font-mono);font-size:20.5px;line-height:2.15;white-space:pre}
+.s6 .keys{display:flex;flex-direction:column;gap:30px;padding-top:8px}
+.s6 .key{display:flex;gap:22px;align-items:flex-start}
+.s6 .key .n{flex:none;width:44px;height:44px;border-radius:50%;background:var(--color-primary);color:#06121f;font-family:var(--font-mono);font-weight:700;font-size:20px;display:grid;place-items:center}
+.s6 .key b{font-family:var(--font-display);font-size:23px;display:block}
+.s6 .key p{font-size:18px;color:var(--dim);margin-top:4px;line-height:1.5}
+
+/* ── SLIDE 7 · FEATURES ── */
+.s7 h2{font-size:64px;font-weight:700;margin-bottom:54px}
+.s7 .fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:24px;flex:1;max-height:560px}
+.s7 .f{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:32px 34px}
+.s7 .f.big{grid-row:span 2;border-color:rgba(56,189,248,.5);display:flex;flex-direction:column;justify-content:center}
+.s7 .f h3{font-size:26px;margin-bottom:12px}
+.s7 .f.big h3{font-size:34px}
+.s7 .f p{font-size:18.5px;color:var(--dim);line-height:1.55}
+.s7 .f .stat{font-family:var(--font-display);font-size:76px;font-weight:700;color:var(--color-accent);margin-bottom:10px}
+.s7 .f code{font-family:var(--font-mono);font-size:.85em;color:var(--color-accent)}
+
+/* ── SLIDE 8 · WHY NOW ── */
+.s8 h2{font-size:64px;font-weight:700;margin-bottom:54px}
+.s8 .cols{display:grid;grid-template-columns:1fr 1fr;gap:70px;flex:1}
+.s8 h3{font-size:27px;color:var(--color-accent);margin-bottom:26px}
+.s8 ul{list-style:none;display:flex;flex-direction:column;gap:20px}
+.s8 li{font-size:21px;color:var(--dim);line-height:1.5;padding-left:34px;position:relative}
+.s8 li::before{content:"▸";position:absolute;left:0;color:var(--color-primary)}
+.s8 li b{color:var(--text)}
+.s8 li code{font-family:var(--font-mono);font-size:.85em;color:var(--color-accent)}
+
+/* ── SLIDE 9 · TRACTION ── */
+.s9 h2{font-size:64px;font-weight:700;margin-bottom:56px}
+.s9 .receipts{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:44px}
+.s9 .r{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:30px 28px;text-align:center}
+.s9 .r b{font-family:var(--font-display);font-size:58px;font-weight:700;color:var(--color-accent);display:block;font-variant-numeric:tabular-nums}
+.s9 .r span{font-size:17px;color:var(--dim)}
+.s9 .ship{font-family:var(--font-mono);font-size:19px;color:var(--dim);line-height:2.15;border-left:3px solid var(--ok);padding-left:34px}
+.s9 .ship b{color:var(--ok);font-weight:500}
+
+/* ── SLIDE 10 · THE ASK ── */
+.s10{justify-content:center}
+.s10 .cols{display:grid;grid-template-columns:1.15fr .85fr;gap:90px;align-items:center}
+.s10 h2{font-size:88px;font-weight:700}
+.s10 .cmd{margin-top:44px;background:#0a101c;border:1px solid var(--line);border-radius:14px;padding:26px 30px;font-family:var(--font-mono);font-size:21px;line-height:1.9;color:var(--text)}
+.s10 .cmd b{color:var(--color-primary);font-weight:400}
+.s10 .contact{margin-top:38px;font-family:var(--font-mono);font-size:19px;color:var(--dim);line-height:2}
+.s10 .contact a{color:var(--color-accent);text-decoration:none}
+.s10 .qr{
+  aspect-ratio:1;max-width:400px;border:1px solid var(--line);border-radius:22px;background:var(--panel);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:44px;text-align:center;
+}
+.s10 .qr img{width:120px;height:120px}
+.s10 .qr .u{font-family:var(--font-mono);font-size:20px;color:var(--color-accent)}
+.s10 .qr .d{font-size:17px;color:var(--dim)}
+
+/* chrome: counter + hint */
+#counter{position:fixed;right:26px;bottom:20px;font-family:var(--font-mono);font-size:14px;color:var(--dim);z-index:60}
+#hint{position:fixed;left:26px;bottom:20px;font-family:var(--font-mono);font-size:12px;color:var(--dim);opacity:.65;z-index:60}
+
+/* presenter mode */
+#notes{
+  position:fixed;left:0;right:0;bottom:0;height:20%;background:rgba(6,11,20,.94);
+  border-top:1px solid var(--color-primary);padding:22px 40px;z-index:70;display:none;
+  font-size:17px;color:var(--text);line-height:1.6;overflow-y:auto;backdrop-filter:blur(10px);
+}
+#notes h5{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;color:var(--color-primary);margin-bottom:8px}
+body.presenting #notes{display:block}
+body.presenting #hint{display:none}
+body.cursor-idle{cursor:none}
+
+/* overview grid (ESC) */
+body.overview #viewport{display:block;overflow-y:auto;padding:40px}
+body.overview #stage{width:auto;height:auto;transform:none!important;display:grid;grid-template-columns:repeat(3,1fr);gap:26px;max-width:1400px;margin:0 auto}
+body.overview .slide{display:flex;position:relative;width:100%;height:auto;aspect-ratio:16/9;padding:34px;border-radius:12px;border:1px solid var(--line);cursor:pointer;transform:scale(1);zoom:.28;overflow:hidden}
+body.overview .slide:hover{border-color:var(--color-primary)}
+body.overview #counter,body.overview #hint{display:none}
+
+/* contrast debug — press C */
+body.debug-contrast h1,body.debug-contrast h2,body.debug-contrast h3,
+body.debug-contrast p,body.debug-contrast li,body.debug-contrast span,
+body.debug-contrast b,body.debug-contrast .contrast-check{outline:1px solid rgba(248,113,113,.7)}
+
+/* print to PDF: one slide per page, backgrounds forced, chrome hidden */
+@page{size:16in 9in landscape;margin:0}
+@media print{
+  html,body{overflow:visible;height:auto;background:var(--color-bg);
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #viewport{position:static;display:block}
+  #stage{width:1920px;height:auto;transform:none!important}
+  .slide{display:flex;position:relative;page-break-inside:avoid;break-inside:avoid;
+    page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #counter,#hint,#notes{display:none!important}
+  .typing::after,.badge .dot{animation:none}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div id="viewport">
+<div id="stage">
+
+<!-- ═══ 01 · COVER ═══ -->
+<section class="slide s1 active" data-notes="Open cold: this is Permafrost, a sixty-dollar guardian for the fridges that hold vaccines. One sentence — it doesn't just alarm on your cold chain, it argues for it, with reasoning and citations. Built for the Global AI Hackathon with Qwen Cloud, Track 5 EdgeAgent.">
+  <div class="cover-grid">
+    <div>
+      <div class="brandline"><img src="../icon.svg" alt="Permafrost icon"><b>PERMAFROST</b></div>
+      <h1>The fridge that <em>argues</em> for its contents.</h1>
+      <p class="tagline">A $60 edge guardian for clinic vaccine fridges — reflexes in sub-milliseconds, reasoning in the Qwen cloud, proof in a hash chain.</p>
+      <div style="margin-top:44px"><span class="badge"><span class="dot"></span>Built for the Global AI Hackathon with Qwen Cloud · Track 5 — EdgeAgent</span></div>
+    </div>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>permafrost — replay</span></div>
+      <div class="term-body"><span class="pri">$</span> permafrost replay --curve seeds/door_ajar.csv<br><span class="dim">reflex:</span> <span style="color:var(--err)">CRITICAL door_timer</span> <span class="dim">in &lt;1 ms</span><br><span class="dim">verdict:</span> <span class="acc">door_ajar (0.93) — stock at risk in 22 min</span><br><span class="dim">chain:</span> <span style="color:var(--ok)" class="typing">OK — 2177 entries, intact</span></div>
+    </div>
+  </div>
+  <aside class="speaker-notes">Open cold: Permafrost, a $60 guardian for vaccine fridges. It argues, not just alarms. Track 5 EdgeAgent, built on Qwen Cloud.</aside>
+</section>
+
+<!-- ═══ 02 · HOOK ═══ -->
+<section class="slide s2" data-notes="The killer isn't the temperature — it's the false alarm. Monitors that scream at every defrost cycle get unplugged. And an unplugged monitor protects exactly nothing. That is the real failure mode of the cold chain, and it's a reasoning problem, not a sensing problem.">
+  <p class="tag">02 · The hook</p>
+  <h2>Cold-chain monitors get <b>unplugged</b> — because they cry wolf.</h2>
+  <p>Every defrost cycle looks like an emergency to a threshold alarm. Staff silence it. Then the real emergency arrives.</p>
+  <aside class="speaker-notes">The killer is false-alarm fatigue, not sensing. An unplugged monitor protects nothing. This is a reasoning problem.</aside>
+</section>
+
+<!-- ═══ 03 · PROBLEM ═══ -->
+<section class="slide s3" data-notes="Make it concrete: a nurse in a two-room clinic, Monday morning. Friday night's power blip silently cooked eight thousand dollars of childhood vaccines. The monitor that could have warned her was unplugged months ago because it screamed at every defrost. Commercial monitoring costs one to three thousand dollars a year — rural clinics simply go without.">
+  <p class="tag">03 · The problem</p>
+  <div class="cols">
+    <div>
+      <h2>Monday morning, two-room clinic.</h2>
+      <p class="story">A nurse opens the fridge and finds Friday's power blip silently cooked <b>$8,000 of childhood vaccines</b>. The monitor that could have warned her was <b>unplugged months ago</b> — because it screamed at every defrost cycle.</p>
+    </div>
+    <div class="ledger">
+      <div><b>$8,000</b><span>of stock lost to one unwitnessed excursion</span></div>
+      <div><b>$1–3k / yr</b><span>commercial cold-chain monitoring — out of reach for small clinics</span></div>
+      <div><b>0 alarms</b><span>from an unplugged monitor — the false-alarm death spiral</span></div>
+    </div>
+  </div>
+  <aside class="speaker-notes">Concrete scene: nurse, Monday, $8k of vaccines lost. The warning device was unplugged from alarm fatigue. Commercial monitors cost $1–3k/yr.</aside>
+</section>
+
+<!-- ═══ 04 · SOLUTION ═══ -->
+<section class="slide s4" data-notes="Permafrost splits the job along the Track 5 seam. The edge does what edges do best — react in under a millisecond from local rules, no network needed. The cloud does what only a thinking model can — diagnose the excursion like a refrigeration engineer: defrost, benign — or door ajar, stock at risk in 22 minutes, with a guidance citation. And everything lands in a tamper-evident hash chain.">
+  <p class="tag">04 · The solution</p>
+  <div class="cols">
+    <div>
+      <h2>Reflexes local. Reasoning cloud. Proof cryptographic.</h2>
+      <p>A Pi-class device reacts in <b>&lt;1 ms</b> from local rules; <b>qwen3.7-plus with thinking</b> diagnoses each excursion with evidence and a guidance citation; every event extends a <b>SHA-256 hash chain</b> with Ed25519-signed daily roots.</p>
+    </div>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>permafrost — one loop, edge to cloud and back</span></div>
+      <!-- REAL ASSET: repo hero image -->
+      <div class="term-body"><img src="../readme-hero.png" alt="Permafrost hero: edge reflex loop, Qwen cloud verdicts, tamper-evident hash chain"></div>
+    </div>
+  </div>
+  <aside class="speaker-notes">Split along the Track-5 seam: edge reacts sub-ms, Qwen diagnoses with citations, hash chain proves it all.</aside>
+</section>
+
+<!-- ═══ 05 · HOW IT WORKS ═══ -->
+<section class="slide s5" data-notes="Left box is the edge: sensors or replay curves, a ten-second sampler, reflex rules, buzzer under a hundred milliseconds, and the hash-chain log. Only excursion events cross the wire — ECIES-sealed, never raw streams. The cloud runs diagnose, distill and report on four Qwen surfaces. The loop back is the clever bit: the cloud distills its own verdicts into local rules, signs them Ed25519, and the edge verifies before hot-swapping.">
+  <p class="tag">05 · How it works</p>
+  <h2>One loop, closed with a signature.</h2>
+  <div class="arch">
+    <div class="box edge">
+      <h3>EDGE <small>Raspberry Pi · or replay on a laptop</small></h3>
+      <div class="row">DS18B20 ×2 + reed <b>→ 10s sampler</b></div>
+      <div class="row">reflex rules vN <b>→ buzzer &lt;100 ms</b></div>
+      <div class="row">hash-chain log <b>h&#7522; = SHA256(h&#7522;&#8331;&#8321; ‖ entry)</b></div>
+      <div class="row">offline queue <b>ECIES-sealed</b></div>
+    </div>
+    <div class="flow">
+      <span class="arrow">⟶</span>
+      <span class="lbl">excursion events only<br>never raw streams</span>
+    </div>
+    <div class="box">
+      <h3>CLOUD <small>FastAPI · FC-ready</small></h3>
+      <div class="row">/diagnose <b>→ ExcursionVerdict</b></div>
+      <div class="row">/distill <b>→ IF/THEN rules + signature</b></div>
+      <div class="row">/report/weekly <b>→ VFC summary</b></div>
+    </div>
+    <div class="flow">
+      <span class="arrow">⇄</span>
+      <span class="lbl">structured output<br>function calling</span>
+    </div>
+    <div class="box">
+      <h3>QWEN CLOUD <small>DashScope</small></h3>
+      <div class="row">qwen3.7-plus <b>+ thinking</b></div>
+      <div class="row">text-embedding-v4 <b>→ citations</b></div>
+      <div class="row">qwen3.6-flash <b>→ distillation</b></div>
+      <div class="row">qwen3-tts-instruct-flash <b>→ voice</b></div>
+    </div>
+  </div>
+  <p class="loopnote">↩ the cloud distills its own verdicts into local rules vN+1, <b>Ed25519-signs the bundle</b> — the edge verifies before hot-swap, and refuses forgeries</p>
+  <aside class="speaker-notes">Edge: sample, reflex, chain-log, sealed queue. Cloud: diagnose/distill/report on four Qwen surfaces. The loop closes with a signed rule bundle the edge verifies before hot-swapping.</aside>
+</section>
+
+<!-- ═══ 06 · LIVE DEMO ═══ -->
+<section class="slide s6" data-notes="This is real output, not a mock. We cut the network at tick 1700, mid-excursion. Watch beat one: OFFLINE mode, local rules protecting. Beat two: the door alarm still fires — under a millisecond, no cloud. Beat three: reconnect at 2100, the sealed queue drains. Beat four: verify-chain re-derives every hash — the blackout left no gap. That is graceful degradation you can assert in CI.">
+  <p class="tag">06 · Live demo — the cable pull</p>
+  <h2>The network dies. The fridge stays guarded.</h2>
+  <div class="demo-wrap">
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>permafrost replay · --offline-from 1700 --online-from 2100</span></div>
+      <div class="term-body"><span class="dim">[tick 1700]</span> <span style="color:var(--warn)">~~ NETWORK CUT — OFFLINE, rules v1 protecting ~~</span>
+<span class="dim">[tick 1813]</span> <span style="color:var(--err)">REFLEX CRITICAL door_timer: Door open 2 min+</span>
+<span class="dim">[tick 1820]</span> <span style="color:var(--warn)">REFLEX WATCH fast_rise: warming ≥ 0.5C/min</span>
+<span class="dim">[tick 2100]</span> <span style="color:var(--info)">~~ RECONNECTED — syncing queued events ~~</span>
+
+<span class="dim">replay done: 2160 ticks | offline ticks 400 |</span>
+<span class="dim">  queue pending 0 (synced 2) | rules v1</span>
+<span style="color:var(--ok)">chain: OK — 2178 entries re-derived, intact;</span>
+<span style="color:var(--ok)">  1 signed daily root(s) verified</span></div>
+    </div>
+    <div class="keys">
+      <div class="key"><span class="n">1</span><div><b>Cable cut mid-excursion</b><p>Tick 1700 — the cloud vanishes while the door is ajar.</p></div></div>
+      <div class="key"><span class="n">2</span><div><b>Alarm fires anyway</b><p>Local reflex trips at tick 1813 in &lt;1 ms — zero connectivity required.</p></div></div>
+      <div class="key"><span class="n">3</span><div><b>Queue drains on reconnect</b><p>ECIES-sealed events sync; Qwen verdicts arrive late but complete.</p></div></div>
+      <div class="key"><span class="n">4</span><div><b>Chain closes gap-free</b><p><span class="mono acc">verify-chain</span> re-derives 2,178 hashes — the blackout left no hole.</p></div></div>
+    </div>
+  </div>
+  <aside class="speaker-notes">Real output. Cut at 1700, alarm at 1813 with no network, reconnect at 2100, chain verifies gap-free. CI asserts this via verify_offline.py.</aside>
+</section>
+
+<!-- ═══ 07 · KEY FEATURES ═══ -->
+<section class="slide s7" data-notes="The headline number: reflex p95 of 0.007 milliseconds against a 100-millisecond budget. Around it: the twin-curve discrimination that kills false alarms, signed rule hot-swap so the cloud ships its own offline fallback, the sealed offline queue, and one-byte tamper detection — each one is a tested invariant, not a roadmap item.">
+  <p class="tag">07 · Key features</p>
+  <h2>Every claim is a passing test.</h2>
+  <div class="fgrid">
+    <div class="f big">
+      <div class="stat">0.007 ms</div>
+      <h3>Reflex p95 latency</h3>
+      <p>Local rules trip the buzzer four orders of magnitude inside the 100 ms budget — measured by <code>permafrost bench</code>, always before any cloud round-trip.</p>
+    </div>
+    <div class="f"><h3>Twin discrimination</h3><p>Near-identical +3.2 °C spikes: defrost reads <code>BENIGN</code>, door-ajar reads <code>CRITICAL</code> with a stock-risk ETA and citation.</p></div>
+    <div class="f"><h3>Signed rule hot-swap</h3><p>Ed25519 verification <em>before</em> activation; unsigned, forged, or downgraded bundles are refused and chain-logged (invariant I3).</p></div>
+    <div class="f"><h3>Offline queue + resync</h3><p>Events ECIES-sealed to the cloud's public key; the chain stays gap-free through a hard-kill power cut (invariant I1).</p></div>
+    <div class="f"><h3>1-byte tamper detection</h3><p>Flip any byte — entry, hash, seq, or signed root — and <code>verify-chain</code> fails, names the sequence, exits 1 (invariant I2).</p></div>
+  </div>
+  <aside class="speaker-notes">Lead with 0.007 ms p95 vs 100 ms budget. Each surrounding card maps to a tested invariant I1–I4, not roadmap.</aside>
+</section>
+
+<!-- ═══ 08 · WHY NOW / WHY US ═══ -->
+<section class="slide s8" data-notes="Why only Qwen Cloud: thinking-grade diagnosis, structured output so a 2 AM parse failure can't kill vaccines, embeddings for citations, a flash tier that makes distillation basically free, and instruction-controlled TTS. Remove Qwen and you need four vendors and a bill a rural clinic will never pay. Why us: we committed to offline-first honesty — the whole judging path reproduces keylessly, and a bogus key still proves the live wiring with a real DashScope 401.">
+  <p class="tag">08 · Why Qwen Cloud · why this build</p>
+  <h2>One vendor, four surfaces, honest wiring.</h2>
+  <div class="cols">
+    <div>
+      <h3>Why only Qwen Cloud</h3>
+      <ul>
+        <li><b>qwen3.7-plus + thinking</b> — multi-step reasoning over slopes, periodicity, humidity co-signals; a flash-tier matcher would re-create the false-positive problem</li>
+        <li><b>Structured output</b> — <code>ExcursionVerdict</code> JSON drives actuators; a free-text parse failure at 2 AM is a dead-vaccine failure</li>
+        <li><b>text-embedding-v4</b> — every CRITICAL verdict cites guidance (enforced in the schema, invariant I4)</li>
+        <li><b>qwen3.6-flash</b> — distillation costs $0.00007 a run; the max tier would burn the $60-device economics</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Why this build wins the seam</h3>
+      <ul>
+        <li><b>Offline-first, keyless judging</b> — the entire graded path reproduces byte-for-byte on deterministic fixtures</li>
+        <li><b>Wiring proven without a key</b> — a bogus key drives a real DashScope round-trip: authentic 401, real <code>request_id</code></li>
+        <li><b>Cryptography, not clipboards</b> — compliance is a verifiable chain, not a paper log</li>
+        <li><b>Remove Qwen</b> and you need an LLM vendor + vector store + TTS vendor + rules engine — a bill rural clinics will never pay</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="speaker-notes">Qwen surfaces map 1:1 to needs; economics only work on the flash tier. Our moat: offline-first honesty + provable live wiring via the 401 request_id.</aside>
+</section>
+
+<!-- ═══ 09 · TRACTION ═══ -->
+<section class="slide s9" data-notes="Traction here means shipped, verified engineering — no invented users. 331 tests, all offline and keyless, 100 percent line coverage. Bench holds accuracy 1.000 on the four-class fixture set. verify-chain re-derives 2,177 entries gap-free. And the four invariants — power-cut survival, one-byte tamper, forged-bundle refusal, mandatory citations — are hard test assertions.">
+  <p class="tag">09 · Traction — shipped, not promised</p>
+  <h2>What's real today.</h2>
+  <div class="receipts">
+    <div class="r"><b>331</b><span>tests passing · offline · keyless</span></div>
+    <div class="r"><b>100%</b><span>line coverage (--cov=permafrost)</span></div>
+    <div class="r"><b>1.000</b><span>bench accuracy, 4-class fixture set</span></div>
+    <div class="r"><b>2,177</b><span>chain entries verified gap-free</span></div>
+  </div>
+  <div class="ship">
+    <b>✓</b> cable-pull demo — alarm fires offline, queue drains, chain intact (<span class="acc">verify_offline.py</span> exits 0)<br>
+    <b>✓</b> invariants I1–I4 as hard assertions: power-cut survival · 1-byte tamper · forged-bundle refusal · citations required<br>
+    <b>✓</b> signed distillation loop — measured 100% cloud-spend cut on the defrost day, detection preserved on the door control<br>
+    <b>✓</b> 5-stage CI: ruff · mypy · pytest · CodeQL · replay smoke — plus honest Status section for what's not done
+  </div>
+  <aside class="speaker-notes">No invented users. 331 tests / 100% coverage / accuracy 1.000 / 2,177 entries verified. Every checkmark is reproducible from the repo in minutes.</aside>
+</section>
+
+<!-- ═══ 10 · THE ASK ═══ -->
+<section class="slide s10" data-notes="The ask: give it three minutes. No hardware, no API keys — clone, replay the door-ajar curve, watch the reflex beat the cloud, then flip a byte and watch verify-chain catch you. Judge the loop, because the loop is the product. Repo and live site are on screen.">
+  <div class="cols">
+    <div>
+      <p class="tag">10 · The ask</p>
+      <h2>Judge it in three minutes.</h2>
+      <div class="cmd"><b>$</b> git clone https://github.com/edycutjong/permafrost<br><b>$</b> pip install -e ".[dev]"<br><b>$</b> permafrost replay --curve seeds/door_ajar.csv --db audit.db --fresh<br><b>$</b> permafrost verify-chain audit.db</div>
+      <div class="contact">
+        <a href="https://github.com/edycutjong/permafrost">github.com/edycutjong/permafrost</a><br>
+        <a href="https://permafrost.edycu.dev/">permafrost.edycu.dev</a> · Edy Cu · solo build<br>
+        <span class="dim">MIT · zero hardware · zero API keys · the loop is the product</span>
+      </div>
+    </div>
+    <div class="qr">
+      <img src="../icon.svg" alt="Permafrost icon">
+      <div class="u">permafrost.edycu.dev</div>
+      <div class="d">Landing · demo script · benchmark report · this deck</div>
+      <span class="badge" style="font-size:13px;padding:8px 16px"><span class="dot"></span>Built with Qwen Cloud</span>
+    </div>
+  </div>
+  <aside class="speaker-notes">Ask for three minutes: clone, replay, verify-chain. Then try to tamper. The loop is the product. Close on the URL.</aside>
+</section>
+
+</div>
+</div>
+
+<div id="counter">01 / 10</div>
+<div id="hint">←/→ navigate · ESC overview · P presenter · C contrast</div>
+<div id="notes"><h5>SPEAKER NOTES</h5><div id="notes-body"></div></div>
+
+<script>
+(function(){
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var stage = document.getElementById("stage");
+  var counter = document.getElementById("counter");
+  var notesBody = document.getElementById("notes-body");
+  var idx = 0, idleTimer = null;
+
+  function fit(){
+    if (document.body.classList.contains("overview")) return;
+    var s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    stage.style.transform = "scale(" + s + ")";
+  }
+  window.addEventListener("resize", fit); fit();
+
+  function show(i){
+    idx = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function(sl, n){ sl.classList.toggle("active", n === idx); });
+    counter.textContent = String(idx + 1).padStart(2, "0") + " / " + String(slides.length).padStart(2, "0");
+    notesBody.textContent = slides[idx].getAttribute("data-notes") || "";
+  }
+  show(0);
+
+  function toggleOverview(){
+    document.body.classList.toggle("overview");
+    if (document.body.classList.contains("overview")) {
+      slides.forEach(function(sl){ sl.classList.add("active"); });
+      stage.style.transform = "none";
+    } else {
+      show(idx); fit();
+    }
+  }
+
+  slides.forEach(function(sl, n){
+    sl.addEventListener("click", function(){
+      if (document.body.classList.contains("overview")) { toggleOverview(); show(n); }
+    });
+  });
+
+  document.addEventListener("keydown", function(e){
+    if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); show(idx + 1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); show(idx - 1); }
+    else if (e.key === "Escape") { toggleOverview(); }
+    else if (e.key === "p" || e.key === "P") { document.body.classList.toggle("presenting"); }
+    else if (e.key === "c" || e.key === "C") { document.body.classList.toggle("debug-contrast"); }
+    else if (e.key === "Home") { show(0); }
+    else if (e.key === "End") { show(slides.length - 1); }
+  });
+
+  /* presenter mode: hide cursor after 2s idle */
+  document.addEventListener("mousemove", function(){
+    document.body.classList.remove("cursor-idle");
+    clearTimeout(idleTimer);
+    if (document.body.classList.contains("presenting")) {
+      idleTimer = setTimeout(function(){ document.body.classList.add("cursor-idle"); }, 2000);
+    }
+  });
+})();
+</script>
+</body>
+</html>
