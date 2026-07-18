@@ -112,7 +112,7 @@ flowchart LR
 │   → offline queue: events ECIES-sealed (SealedBox) to the cloud pubkey  │
 └───────────────┬─────────────────────────────────────────────────────────┘
                 │ excursion events only — never raw streams (privacy/bandwidth)
-┌───────────────▼────────────── CLOUD (FastAPI, FC-ready) ────────────────┐
+┌───────────────▼────────────── CLOUD (FastAPI, FC-ready) ──────-──────────┐
 │ POST /diagnose  qwen3.7-plus + thinking → ExcursionVerdict (structured)  │
 │                 text-embedding-v4 → CDC-style guidance citation (I4)     │
 │ POST /distill   qwen3.6-flash → IF/THEN rule bundle + Ed25519 signature  │

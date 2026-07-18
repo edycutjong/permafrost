@@ -42,9 +42,11 @@ class _FakeAudioResp:
 class _FakeOpenAIClient:
     """Stands in for ``openai.OpenAI`` — same call shape, zero network."""
 
-    def __init__(self, api_key, base_url):
+    def __init__(self, api_key, base_url, timeout=None, max_retries=None):
         self.api_key = api_key
         self.base_url = base_url
+        self.timeout = timeout
+        self.max_retries = max_retries
         self.last_kwargs: dict = {}
         self.chat = types.SimpleNamespace(completions=types.SimpleNamespace(create=self._chat_create))
         self.embeddings = types.SimpleNamespace(create=self._embed_create)
@@ -81,6 +83,9 @@ def test_live_qwen_constructs_with_explicit_key(fake_openai):
     q = LiveQwen(api_key="test-key")
     assert isinstance(q.usage, UsageMeter)
     assert q.base_url.startswith("https://")
+    # a per-request timeout + bounded retries guard against thinking-mode hangs
+    assert q._client.timeout == 120.0
+    assert q._client.max_retries == 2
 
 
 def test_live_qwen_constructs_from_env_key(monkeypatch, fake_openai):

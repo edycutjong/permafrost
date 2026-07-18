@@ -118,7 +118,9 @@ class LiveQwen:
         from openai import OpenAI  # lazy: replay/test paths never import-time-need it
 
         self.base_url = base_url
-        self._client = OpenAI(api_key=key, base_url=base_url)
+        # Bound each request (Qwen3 thinking mode can run ~45s) so one slow call
+        # cannot hang a whole live run; retry twice on transient network errors.
+        self._client = OpenAI(api_key=key, base_url=base_url, timeout=120.0, max_retries=2)
         self.usage = UsageMeter()
 
     def chat(
