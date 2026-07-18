@@ -148,8 +148,8 @@ Remove Qwen Cloud and Permafrost needs an LLM vendor, a vector store, a TTS vend
 **Live mode (bring your own key)**: the exact same graded command flips to real Qwen when — and only when — you opt in with both env vars:
 
 ```bash
-export DASHSCOPE_API_KEY=sk-...      # your DashScope-intl key
-export PERMAFROST_LIVE=1             # explicit opt-in; without it, FakeQwen
+export DASHSCOPE_API_KEY=sk-...  # your DashScope-intl key
+export PERMAFROST_LIVE=1         # explicit opt-in; without it, FakeQwen
 permafrost replay --curve seeds/door_ajar.csv --db live.db --fresh
 ```
 
@@ -175,18 +175,18 @@ $ PERMAFROST_LIVE=1 DASHSCOPE_API_KEY=sk-bogus permafrost replay --curve seeds/d
 
 ```bash
 # ── Code Quality ────────────────────────────
-ruff check .                                   # lint
-mypy .                                         # type check
-pytest --cov=permafrost --cov-report=term      # 331 tests, 100% coverage, offline+keyless
+ruff check .                                  # lint
+mypy .                                        # type check
+pytest --cov=permafrost --cov-report=term     # 331 tests, 100% coverage, offline+keyless
 
 # ── Security ────────────────────────────────
-pip-audit                                      # dependency vulnerability scan
+pip-audit                                     # dependency vulnerability scan
 
 # ── End-to-end (the actual product) ─────────
 permafrost replay --curve seeds/door_ajar.csv --db audit.db --fresh
 permafrost verify-chain audit.db
-python scripts/verify_offline.py               # kills real sockets mid-replay
-python scripts/check_submission_readiness.py   # deliverables + honesty gates
+python scripts/verify_offline.py              # kills real sockets mid-replay
+python scripts/check_submission_readiness.py  # deliverables + honesty gates
 ```
 
 | Layer | Tool | Status |
