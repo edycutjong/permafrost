@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "permafrost-edge"
-version = "1.1.0"
+version = "1.1.1"
 description = "A $60 edge guardian for clinic vaccine fridges: local reflexes in milliseconds, cloud Qwen diagnosis with CDC-style citations, and a tamper-evident hash-chained cold-chain log."
 readme = "README.md"
 requires-python = ">=3.12"

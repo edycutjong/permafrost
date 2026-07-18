@@ -13,7 +13,7 @@ from .rules import ReflexEngine, RuleBundle, RuleBundleInvalid, RuleBundleReject
 from .storage import EdgeStore, Reading
 from .verdict import ExcursionVerdict
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 __all__ = [
     "ChainLogger",
