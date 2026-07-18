@@ -18,7 +18,7 @@
   ![Typer](https://img.shields.io/badge/Typer_CLI-000000?style=flat)
   ![Raspberry Pi](https://img.shields.io/badge/Raspberry_Pi-A22846?style=flat&logo=raspberrypi&logoColor=white)
   ![Qwen](https://img.shields.io/badge/Qwen_Cloud-615CED?style=flat)
-  [![CI](https://github.com/edycu/permafrost/actions/workflows/ci.yml/badge.svg)](https://github.com/edycu/permafrost/actions/workflows/ci.yml)
+  [![CI](https://github.com/edycutjong/permafrost/actions/workflows/ci.yml/badge.svg)](https://github.com/edycutjong/permafrost/actions/workflows/ci.yml)
 </div>
 
 A **$60 edge guardian** for clinic vaccine fridges. A Raspberry Pi senses temperature/door/power and reacts in **milliseconds** from local rules; a cloud **Qwen** brain diagnoses each excursion like a refrigeration engineer — *"sawtooth every 6h = defrost cycle, benign"* vs *"door-ajar signature, stock at risk in 22 minutes, alarm now"* — citing cold-chain guidance; and a **SHA-256 hash-chained, Ed25519-signed log** makes compliance tamper-evident through blackouts and offline weeks.
@@ -70,7 +70,7 @@ python scripts/verify_offline.py
 Full suite + invariants:
 
 ```bash
-pytest             # <!--TEST_COUNT-->326 tests<!--/TEST_COUNT-->, all offline, no API keys
+pytest             # <!--TEST_COUNT-->331 tests<!--/TEST_COUNT-->, all offline, no API keys
 python scripts/bench.py
 python scripts/check_submission_readiness.py
 ```
@@ -153,12 +153,16 @@ permafrost replay --curve seeds/door_ajar.csv --db live.db --fresh
 
 Now the same `run_replay` path routes `/diagnose` through `LiveQwen` → `qwen3.7-plus` (with the thinking flag) at `https://dashscope-intl.aliyuncs.com/compatible-mode/v1`; the verdict card shows a **real DashScope `task id`** (not the `fake-…` prefix) and the model's own reasoning, and the same tamper-evident chain wraps it. Everything else in this repo — tests, `bench`, the whole judging path — runs **offline by default** on `FakeQwen`, a deterministic fixture-backed transport, so judges reproduce every byte keylessly with zero setup.
 
-The transport really reaches Qwen Cloud — you can prove the wiring without a valid key. A **bogus** key drives the full replay into a real DashScope round-trip and comes back with an authentic Model-Studio `401` (note the real `request_id`), not a local stub:
+The transport really reaches Qwen Cloud — you can prove the wiring without a valid key. A **bogus** key drives the full replay into a real DashScope round-trip and comes back with an authentic Model-Studio `401` (note the real `request_id`), not a local stub. The CLI renders it as a clean card (exit code 3, no traceback):
 
 ```bash
 $ PERMAFROST_LIVE=1 DASHSCOPE_API_KEY=sk-bogus permafrost replay --curve seeds/door_ajar.csv --db live.db --fresh
-AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided...',
-  'type': 'invalid_request_error', 'code': 'invalid_api_key'}, 'request_id': 'b9fcd904-...'}
+┌─ LIVE Qwen transport ────────────────────────────────
+│ LIVE transport reached DashScope — authentication failed (invalid_api_key)
+│ endpoint   : https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+│ request_id : 1c76e902-1991-9c4e-b18f-e31c04bb985a
+│ The wiring is real; supply a valid DASHSCOPE_API_KEY to get a live verdict.
+└──────────────────────────────────────────────────────
 ```
 
 > **Honesty note:** that 401 witnesses the endpoint and auth are real; the author has **not** executed a *successful* live inference (no valid key on hand), so the model's actual verdict text is un-witnessed in this build — see Status. Routing is wired end-to-end and one command away for any key-holder; the `ExcursionVerdict` schema validator is the final gate on whatever the live model returns.
@@ -171,7 +175,7 @@ AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key 
 # ── Code Quality ────────────────────────────
 ruff check .                                   # lint
 mypy .                                         # type check
-pytest --cov=permafrost --cov-report=term      # 326 tests, 100% coverage, offline+keyless
+pytest --cov=permafrost --cov-report=term      # 331 tests, 100% coverage, offline+keyless
 
 # ── Security ────────────────────────────────
 pip-audit                                      # dependency vulnerability scan
@@ -187,7 +191,7 @@ python scripts/check_submission_readiness.py   # deliverables + honesty gates
 |---|---|---|
 | Lint | ruff | ✅ |
 | Type checking | mypy (strict-ish, `ignore_missing_imports`) | ✅ |
-| Unit + invariant testing | pytest (326 tests, I1–I4 invariants, 100% coverage) | ✅ |
+| Unit + invariant testing | pytest (331 tests, I1–I4 invariants, 100% coverage) | ✅ |
 | Security (SAST) | CodeQL (`python`) | ✅ |
 | Security (SCA) | Dependabot (`pip` + `github-actions`) + `pip-audit` | ✅ |
 | Secret scanning | TruffleHog (CI) + GitHub push protection (repo setting) | ✅ |
@@ -205,7 +209,7 @@ Raspberry Pi 3B+/4/5 · 2× DS18B20 waterproof probes (1-Wire, GPIO4 + 4.7 kΩ) 
 ```
 src/permafrost/        the pip package: daemon, chain, rules, crypto, qwen/, cloud/ (the FastAPI brain)
 seeds/                 4 engineered curves + expected.json + fridge.json (seed.py --regen, byte-identical)
-tests/                 the 326-test suite incl. invariants I1–I4 (all offline, keyless)
+tests/                 the 331-test suite incl. invariants I1–I4 (all offline, keyless)
 scripts/               bench.py · verify_offline.py · check_submission_readiness.py
 infra/fc/              handler.py (FC entrypoint → the FastAPI app) + s.yaml + PROOF.md (deploy-evidence checklist)
 edge/wiring.md         BOM + pin map + assembly notes (chain/bundle byte-formats: module docstrings in chain.py/rules.py/canonical.py)
@@ -217,7 +221,7 @@ DEMO.md                judge script: replay path + live-hardware path
 
 ## 📋 Status (honest)
 
-**Done and tested (offline, deterministic):** edge daemon (sampler → ring buffer → reflex → queue → sync), hash-chain + signed daily Merkle roots + `verify-chain`, ECIES-sealed event batches, signed rule bundles with refusal-before-hot-swap, cloud app (`/diagnose`, `/distill`, `/report/weekly`), guidance retrieval with citations, 4 seed curves, bench (confusion matrix **1.000** on the 4-class fixture set, reflex p95 **<0.01 ms** vs the 100 ms budget, **≥60% target / 100% measured** cloud spend saved on the defrost day after distillation with detection preserved on the door control), network-kill offline verification, and the I1–I4 invariant suite (326 tests total).
+**Done and tested (offline, deterministic):** edge daemon (sampler → ring buffer → reflex → queue → sync), hash-chain + signed daily Merkle roots + `verify-chain`, ECIES-sealed event batches, signed rule bundles with refusal-before-hot-swap, cloud app (`/diagnose`, `/distill`, `/report/weekly`), guidance retrieval with citations, 4 seed curves, bench (confusion matrix **1.000** on the 4-class fixture set, reflex p95 **<0.01 ms** vs the 100 ms budget, **≥60% target / 100% measured** cloud spend saved on the defrost day after distillation with detection preserved on the door control), network-kill offline verification, and the I1–I4 invariant suite (331 tests total).
 
 **Not done in this build (stated plainly):**
 - **Real GPIO/hardware test** — `GpioSource`/buzzer GPIO are written to the wiring plan with guarded imports, but no physical rig has run yet. Replay mode is the supported judging path.

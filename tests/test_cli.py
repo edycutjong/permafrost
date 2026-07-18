@@ -150,6 +150,88 @@ def test_distill_activate_refusal_prints_message_and_exits_one(tmp_path, monkeyp
     assert "REFUSED" in res.output
 
 
+# ── LIVE-mode transport failures (DEMO.md A7) ─────────────────────────────────
+# The transport errors are MOCKED — no test ever makes a network call.
+
+
+def _mock_status_error(status: int, code: str, request_id: str):
+    import httpx
+    from openai import APIStatusError, AuthenticationError, RateLimitError
+
+    body = {
+        "error": {"message": "Incorrect API key provided.", "type": "invalid_request_error", "code": code},
+        "request_id": request_id,
+    }
+    response = httpx.Response(
+        status,
+        request=httpx.Request("POST", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions"),
+        json=body,
+    )
+    cls = {401: AuthenticationError, 429: RateLimitError}.get(status, APIStatusError)
+    return cls(f"Error code: {status} - {body}", response=response, body=body)
+
+
+def _replay_raising(monkeypatch, exc, tmp_path, live: bool = True):
+    if live:
+        monkeypatch.setenv("PERMAFROST_LIVE", "1")
+        monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-bogus")
+    else:
+        monkeypatch.delenv("PERMAFROST_LIVE", raising=False)
+
+    def _raise(*_a, **_kw):
+        raise exc
+
+    monkeypatch.setattr("permafrost.replay.run_replay", _raise)
+    return runner.invoke(app, [
+        "replay", "--curve", str(SEEDS_DIR / "door_ajar.csv"), "--db", str(tmp_path / "live.db"), "--fresh",
+    ])
+
+
+def test_replay_live_auth_failure_renders_clean_card(tmp_path, monkeypatch):
+    """A7: bogus key in live mode -> clean card, request_id preserved, exit 3, NO traceback."""
+    res = _replay_raising(monkeypatch, _mock_status_error(401, "invalid_api_key", "b9fcd904-mock"), tmp_path)
+    assert res.exit_code == 3
+    assert "LIVE transport reached DashScope — authentication failed (invalid_api_key)" in res.output
+    assert "b9fcd904-mock" in res.output  # the request_id is the proof the wiring is real
+    assert "supply a valid DASHSCOPE_API_KEY" in res.output
+    assert "Traceback" not in res.output and "AuthenticationError" not in res.output
+
+
+def test_replay_live_non_401_status_renders_clean_card(tmp_path, monkeypatch):
+    res = _replay_raising(monkeypatch, _mock_status_error(429, "rate_limit_exceeded", "req-429-mock"), tmp_path)
+    assert res.exit_code == 3
+    assert "HTTP 429 (rate_limit_exceeded)" in res.output
+    assert "req-429-mock" in res.output
+    assert "Traceback" not in res.output
+
+
+def test_replay_live_connection_error_renders_clean_card(tmp_path, monkeypatch):
+    import httpx
+    from openai import APIConnectionError
+
+    exc = APIConnectionError(
+        request=httpx.Request("POST", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions")
+    )
+    res = _replay_raising(monkeypatch, exc, tmp_path)
+    assert res.exit_code == 3
+    assert "could not reach DashScope" in res.output
+    assert "Traceback" not in res.output
+
+
+def test_replay_live_mode_non_api_error_still_propagates(tmp_path, monkeypatch):
+    """The card must never swallow a non-transport bug, even in live mode."""
+    res = _replay_raising(monkeypatch, ValueError("not a transport error"), tmp_path)
+    assert res.exit_code != 0
+    assert isinstance(res.exception, ValueError)
+
+
+def test_replay_offline_errors_still_propagate_unchanged(tmp_path, monkeypatch):
+    """Without PERMAFROST_LIVE the wrapper is inert: exceptions re-raise as before."""
+    res = _replay_raising(monkeypatch, _mock_status_error(401, "invalid_api_key", "req-x"), tmp_path, live=False)
+    assert res.exit_code != 0
+    assert res.exception is not None and "Error code: 401" in str(res.exception)
+
+
 def test_report_week(tmp_path):
     db = tmp_path / "a.db"
     _door(db)

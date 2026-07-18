@@ -18,7 +18,7 @@ pip install -e ".[dev]"
 ### A0. Prove it's real first (30s)
 
 ```bash
-pytest -q                                   # 326 tests, all offline
+pytest -q                                   # 331 tests, all offline
 python scripts/check_submission_readiness.py  # deliverables + smoke + honesty gates
 ```
 
@@ -104,8 +104,19 @@ PERMAFROST_LIVE=1 DASHSCOPE_API_KEY=sk-bogus \
 ```
 
 The **identical** graded command flips off `FakeQwen` and drives `/diagnose` into a
-real DashScope round-trip. A bogus key returns an authentic Model-Studio `401` with
-a real `request_id` — proof the transport reaches `qwen3.7-plus` at
+real DashScope round-trip. A bogus key gets an authentic Model-Studio `401` back,
+rendered as a clean card (exit code 3, no traceback):
+
+```
+┌─ LIVE Qwen transport ────────────────────────────────
+│ LIVE transport reached DashScope — authentication failed (invalid_api_key)
+│ endpoint   : https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+│ request_id : 1c76e902-1991-9c4e-b18f-e31c04bb985a
+│ The wiring is real; supply a valid DASHSCOPE_API_KEY to get a live verdict.
+└──────────────────────────────────────────────────────
+```
+
+The real `request_id` is the proof the transport reaches `qwen3.7-plus` at
 `dashscope-intl.aliyuncs.com`, not a local stub. Drop in a **valid** key and the
 verdict card shows a real DashScope `task id` (no `fake-` prefix) and the model's own
 reasoning. Everything else in this script stays offline + keyless on `FakeQwen`.

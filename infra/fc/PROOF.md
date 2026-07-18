@@ -9,7 +9,7 @@ repo claims otherwise (see README Status).
 
 The Function Compute handler (`handler.py`) serves the **exact** FastAPI app the
 offline test suite exercises (`permafrost.cloud.app`). There is no cloud-only code
-path, so the 326 passing tests already cover the deployed behaviour; deployment is a
+path, so the 331 passing tests already cover the deployed behaviour; deployment is a
 packaging + secrets step, not new logic.
 
 ## Deploy

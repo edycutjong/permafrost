@@ -47,7 +47,7 @@ hardware = [
 permafrost = "permafrost.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/edycu/permafrost"
+Homepage = "https://github.com/edycutjong/permafrost"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/permafrost"]

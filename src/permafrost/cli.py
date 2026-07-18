@@ -37,6 +37,57 @@ def _echo_verdict(envelope: dict) -> None:
     typer.secho("└──────────────────────────────────────────────────────", fg=color)
 
 
+def _live_transport_exit_code(exc: BaseException) -> Optional[int]:
+    """Render a LIVE-mode DashScope transport failure as a clean judge-facing card.
+
+    Returns exit code 3 when the failure was rendered, or ``None`` when this is
+    not a live-transport error (caller re-raises unchanged). The offline judging
+    path never sets ``PERMAFROST_LIVE`` and can never take this branch.
+    """
+    import os
+
+    if os.environ.get("PERMAFROST_LIVE") != "1":
+        return None
+    try:
+        from openai import APIError, APIStatusError
+    except ImportError:  # pragma: no cover - openai is an install-time dependency
+        return None
+    if not isinstance(exc, APIError):
+        return None
+
+    from .qwen.transport import QWEN_BASE_URL
+
+    status = getattr(exc, "status_code", None)
+    body = getattr(exc, "body", None)
+    code: Optional[str] = None
+    request_id: Optional[str] = None
+    if isinstance(body, dict):
+        request_id = body.get("request_id")
+        err = body.get("error")
+        if isinstance(err, dict):
+            code = err.get("code")
+    request_id = request_id or getattr(exc, "request_id", None)
+
+    if isinstance(exc, APIStatusError):
+        if status == 401:
+            headline = f"LIVE transport reached DashScope — authentication failed ({code or 'invalid_api_key'})"
+        else:
+            headline = f"LIVE transport reached DashScope — HTTP {status}" + (f" ({code})" if code else "")
+        footer = "The wiring is real; supply a valid DASHSCOPE_API_KEY to get a live verdict."
+    else:  # connection-level failure: DashScope was never reached
+        headline = f"LIVE transport could not reach DashScope — {getattr(exc, 'message', None) or exc}"
+        footer = "Check network connectivity (or unset PERMAFROST_LIVE for the offline FakeQwen path)."
+
+    c = typer.colors.YELLOW
+    typer.secho("\n┌─ LIVE Qwen transport ────────────────────────────────", fg=c, bold=True)
+    typer.secho(f"│ {headline}", fg=c)
+    typer.secho(f"│ endpoint   : {QWEN_BASE_URL}", fg=c)
+    typer.secho(f"│ request_id : {request_id or '(none)'}", fg=c)
+    typer.secho(f"│ {footer}", fg=c)
+    typer.secho("└──────────────────────────────────────────────────────", fg=c)
+    return 3
+
+
 @app.command()
 def daemon(
     db: Path = typer.Option(Path("audit.db"), help="Audit database path (SQLite WAL)."),
@@ -106,16 +157,22 @@ def replay(
 
     verdicts_seen: list[dict] = []
 
-    result = run_replay(
-        curve,
-        db,
-        offline_from=offline_from,
-        online_from=online_from,
-        tick_limit=tick_limit,
-        throttle_ms=throttle_ms,
-        resume=resume,
-        verbose_print=(None if quiet else lambda msg: typer.echo(msg)),
-    )
+    try:
+        result = run_replay(
+            curve,
+            db,
+            offline_from=offline_from,
+            online_from=online_from,
+            tick_limit=tick_limit,
+            throttle_ms=throttle_ms,
+            resume=resume,
+            verbose_print=(None if quiet else lambda msg: typer.echo(msg)),
+        )
+    except Exception as exc:
+        live_exit = _live_transport_exit_code(exc)
+        if live_exit is None:
+            raise
+        raise typer.Exit(code=live_exit) from None
     for envelope in result.verdicts:
         if not quiet:
             _echo_verdict(envelope)
