@@ -17,7 +17,7 @@ Thanks for your interest in improving Permafrost!
 ## Before You Open a PR
 - `ruff check .` passes (lint).
 - `mypy .` passes (type check).
-- `pytest --cov=permafrost` passes — all 326+ tests, offline, no API keys.
+- `pytest --cov=permafrost` passes — all 331+ tests, offline, no API keys.
 - `python scripts/verify_offline.py` passes (offline-degradation invariant).
 - `python scripts/check_submission_readiness.py` passes (deliverables + honesty gates).
 - Add or update tests for any behavior change, especially the I1-I4 invariants in
