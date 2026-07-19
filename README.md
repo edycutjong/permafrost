@@ -32,7 +32,7 @@ A **$60 edge guardian** for clinic vaccine fridges. A Raspberry Pi senses temper
 
 MIT licensed. Python 3.12. The Pi is showmanship; **the loop is the product**.
 
-> **Live on Alibaba Function Compute.** The FastAPI brain is deployed on managed `python3.10` at **[permafrost-hoznckcsox.ap-southeast-1.fcapp.run](https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run/health)** (`/health`, `/run`, `/verify` — see [☁️ Deployed](#️-deployed-on-alibaba-function-compute)). It's an edge + CLI product, so there's no interactive web app to click; everything below also runs locally in ~3 minutes, offline and keyless (`permafrost replay ...`) — see [DEMO.md](DEMO.md) for the full judge script.
+> **Live on Alibaba Function Compute.** The FastAPI brain is deployed on managed `python3.10` at **[permafrost-hoznckcsox.ap-southeast-1.fcapp.run](https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run/health)** (`/health`, `/run`, `/verify` — see [☁️ Deployed](#-deployed-on-alibaba-function-compute)). It's an edge + CLI product, so there's no interactive web app to click; everything below also runs locally in ~3 minutes, offline and keyless (`permafrost replay ...`) — see [DEMO.md](DEMO.md) for the full judge script.
 
 ---
 
@@ -244,7 +244,7 @@ DEMO.md                judge script: replay path + live-hardware path
 
 ## 📋 Status (honest)
 
-**Done and tested (offline, deterministic):** edge daemon (sampler → ring buffer → reflex → queue → sync), hash-chain + signed daily Merkle roots + `verify-chain`, ECIES-sealed event batches, signed rule bundles with refusal-before-hot-swap, cloud app (`/diagnose`, `/distill`, `/report/weekly`), guidance retrieval with citations, 4 seed curves, bench (confusion matrix **1.000** on the 4-class fixture set, reflex p95 **<0.01 ms** vs the 100 ms budget, **≥60% target / 100% measured** cloud spend saved on the defrost day after distillation with detection preserved on the door control), network-kill offline verification, and the I1–I4 invariant suite (331 tests total). **Deployed live on Alibaba Function Compute** (managed python3.10) at `https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run` — `/health`, `/run`, and `/verify` serve the offline-deterministic engine from the cloud (see [☁️ Deployed](#️-deployed-on-alibaba-function-compute)).
+**Done and tested (offline, deterministic):** edge daemon (sampler → ring buffer → reflex → queue → sync), hash-chain + signed daily Merkle roots + `verify-chain`, ECIES-sealed event batches, signed rule bundles with refusal-before-hot-swap, cloud app (`/diagnose`, `/distill`, `/report/weekly`), guidance retrieval with citations, 4 seed curves, bench (confusion matrix **1.000** on the 4-class fixture set, reflex p95 **<0.01 ms** vs the 100 ms budget, **≥60% target / 100% measured** cloud spend saved on the defrost day after distillation with detection preserved on the door control), network-kill offline verification, and the I1–I4 invariant suite (331 tests total). **Deployed live on Alibaba Function Compute** (managed python3.10) at `https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run` — `/health`, `/run`, and `/verify` serve the offline-deterministic engine from the cloud (see [☁️ Deployed](#-deployed-on-alibaba-function-compute)).
 
 **Not done in this build (stated plainly):**
 - **Real GPIO/hardware test** — `GpioSource`/buzzer GPIO are written to the wiring plan with guarded imports, but no physical rig has run yet. Replay mode is the supported judging path.
