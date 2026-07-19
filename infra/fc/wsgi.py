@@ -35,7 +35,7 @@ if not hasattr(enum, "StrEnum"):
     class StrEnum(str, enum.Enum):  # noqa: D401,UP042 - 3.11 enum.StrEnum polyfill for the 3.10 runtime
         def __str__(self) -> str:
             return str(self.value)
-    enum.StrEnum = StrEnum  # type: ignore[attr-defined]
+    enum.StrEnum = StrEnum  # type: ignore[attr-defined,assignment,misc]
 
 # The package ships under src/ in the deployed code bundle.
 _HERE = os.path.dirname(os.path.abspath(__file__))
