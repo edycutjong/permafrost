@@ -1,63 +1,50 @@
-# Serverless Devs (s.yaml) — Permafrost cloud brain on Alibaba Function Compute 3.0
+# Serverless Devs (s.yaml) — Permafrost on Alibaba Function Compute 3.0.
 #
-# The brain is an ASGI FastAPI app (permafrost.cloud.app); we run it on FC's
-# Custom Runtime and front it with an HTTP trigger. Deploy:
+# MANAGED python3.10 runtime (no container / no ACR / no real-name verification).
+# infra/fc/wsgi.py is an EVENT handler (FC 3.0 delivers the HTTP request as JSON
+# and expects a {statusCode, headers, body} dict back). Permafrost stays offline
+# on FakeQwen here (no PERMAFROST_LIVE / DASHSCOPE_API_KEY), so every route is
+# deterministic + keyless.
 #
-#     npm i -g @serverless-devs/s          # the `s` CLI
-#     s config add                         # Alibaba Cloud AK/SK
-#     export DASHSCOPE_API_KEY=...         # live Qwen (optional; FakeQwen otherwise)
-#     export PERMAFROST_SIGNING_SEED=...   # Ed25519 seed (hex) — bundle/root signer
-#     export PERMAFROST_SEALING_PRIVATE=... # X25519 private (hex) — opens ECIES batches
-#     s deploy
+#   s build --use-docker   # installs requirements.txt under code/python
+#   s deploy               # zips code, creates the fn + anonymous HTTP trigger
 #
-# Secrets are read from the deploy environment and injected as function env vars;
-# private keys are NEVER committed (the edge ships only the public verify key).
-# Capture the proof afterwards per PROOF.md.
+# Endpoints (anonymous HTTP trigger):
+#   GET /health   liveness
+#   GET /verify   offline graceful-degradation proof (door_ajar fixture)
+#   GET /run      one deterministic offline replay (?curve=...)
 
 edition: 3.0.0
-name: permafrost-cloud
+name: permafrost-fc
 access: default
 
 vars:
-  region: ap-southeast-1            # intl region matching the DashScope-intl endpoint
-  service: permafrost
+  region: ap-southeast-1
 
 resources:
-  brain:
+  permafrost:
     component: fc3
     props:
       region: ${vars.region}
-      functionName: permafrost-brain
-      description: "Permafrost cold-chain diagnosis/distill/report brain (Qwen Cloud)"
-      runtime: custom.debian10        # Custom Runtime: we run uvicorn ourselves
+      functionName: permafrost
+      description: "Permafrost — auditable cold-chain edge brain (Qwen Cloud)"
+      runtime: python3.10
+      handler: infra.fc.wsgi.handler
       cpu: 0.35
       memorySize: 512
       diskSize: 512
       timeout: 60
       instanceConcurrency: 5
-      code: ./                        # packaged: infra/fc/bootstrap + the installed pkg
-      customRuntimeConfig:
-        # FC starts this; it launches uvicorn on $FC_SERVER_PORT and serves the ASGI app
-        command:
-          - python
-          - -m
-          - infra.fc.handler
-        port: 9000
+      # code root = the build dir (this file lives in infra/fc/).
+      code: ../../
       environmentVariables:
-        PERMAFROST_LIVE: "1"
-        DASHSCOPE_API_KEY: ${env.DASHSCOPE_API_KEY}
-        PERMAFROST_SIGNING_SEED: ${env.PERMAFROST_SIGNING_SEED}
-        PERMAFROST_SEALING_PRIVATE: ${env.PERMAFROST_SEALING_PRIVATE}
+        # s build installs requirements.txt deps under /code/python
+        PYTHONPATH: /code/python
       triggers:
         - triggerName: http
           triggerType: http
           triggerConfig:
-            authType: anonymous       # /diagnose auth is the ECIES seal, not a gateway key
+            authType: anonymous
             methods:
               - GET
               - POST
-
-# OSS archive target for signed daily Merkle roots + sealed batches (second Alibaba
-# surface). Bucket is provisioned out-of-band; the app writes signed roots here in
-# production (edge `sign_daily_roots` -> upload). Referenced by PROOF.md.
-#   oss://permafrost-coldchain/roots/<fridge_id>/<YYYY-MM-DD>.json

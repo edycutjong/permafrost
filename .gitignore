@@ -33,3 +33,6 @@ out/
 
 # OS
 .DS_Store
+
+# s build output (installed deps)
+python/
