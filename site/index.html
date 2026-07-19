@@ -308,6 +308,10 @@ footer{border-top:1px solid var(--border-glass);padding:64px 0 40px;background:r
         <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M8 9l3 2 5-4"/></svg>
         Pitch Deck
       </a>
+      <a class="btn btn-ghost" href="https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run/" target="_blank" rel="noopener" title="Live cloud brain on Alibaba Function Compute — /health · /run · /verify">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4 4 0 0 1 0-8 5.5 5.5 0 0 1 10.6-1.5A3.75 3.75 0 0 1 18 18H7Z"/></svg>
+        Live on Alibaba Cloud
+      </a>
     </div>
 
     <!-- real receipts only: pytest, coverage, bench, verify-chain output -->
@@ -392,8 +396,8 @@ footer{border-top:1px solid var(--border-glass);padding:64px 0 40px;background:r
     <p class="sec-sub reveal">These lines are quoted verbatim from the repo's README — the project states its own limits in-product.</p>
     <div class="honest-grid">
       <div class="honest reveal">
-        <blockquote>The author has not executed a successful live inference (no valid key on hand), so the model's actual verdict text is un-witnessed in this build.</blockquote>
-        <cite>README.md · Honesty note — a bogus key still proves the DashScope wiring with a real 401 request_id</cite>
+        <blockquote>The live model path was smoke-tested with a real DashScope call, so the wiring is verified — what this build does not contain is a full end-to-end captured live run; the deployed endpoints and judging path run the offline FakeQwen engine by design.</blockquote>
+        <cite>README.md · Honesty note — a bogus key still proves the DashScope wiring with a real 401 request_id, keylessly</cite>
       </div>
       <div class="honest reveal">
         <blockquote>Real GPIO/hardware test — no physical rig has run yet. Replay mode is the supported judging path.</blockquote>
@@ -470,6 +474,7 @@ footer{border-top:1px solid var(--border-glass);padding:64px 0 40px;background:r
         <ul>
           <li><a href="https://github.com/edycutjong/permafrost">GitHub</a></li>
           <li><a href="/pitch/">Pitch Deck</a></li>
+          <li><a href="https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run/" target="_blank" rel="noopener">Live on Alibaba FC ☁️</a></li>
           <li><a href="https://github.com/edycutjong/permafrost/blob/main/DEMO.md">Judge Demo Script</a></li>
         </ul>
       </div>

@@ -34,5 +34,6 @@ out/
 # OS
 .DS_Store
 
-# s build output (installed deps)
-python/
+# s (Serverless Devs) build output (installed deps + local state)
+/python/
+.s/

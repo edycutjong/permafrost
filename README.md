@@ -7,6 +7,7 @@
   <br/><br/>
 
   [![Live](https://img.shields.io/badge/%F0%9F%8C%90_Live-permafrost.edycu.dev-06b6d4?style=for-the-badge)](https://permafrost.edycu.dev)
+  [![Live on Alibaba Function Compute](https://img.shields.io/badge/%E2%98%81%EF%B8%8F_Live_on-Alibaba_Function_Compute-FF6A00?style=for-the-badge)](https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run/health)
   [![Pitch Deck](https://img.shields.io/badge/%F0%9F%8E%AC_Pitch-Deck-f59e0b?style=for-the-badge)](https://permafrost.edycu.dev/pitch/)
   [![Demo Path](https://img.shields.io/badge/%F0%9F%95%B9%EF%B8%8F_Judge-Demo_Path-F59E0B?style=for-the-badge)](DEMO.md)
   [![QwenCloud Hackathon](https://img.shields.io/badge/QwenCloud-Track_5_EdgeAgent-8b5cf6?style=for-the-badge)](https://qwencloud-hackathon.devpost.com/)
@@ -31,7 +32,7 @@ A **$60 edge guardian** for clinic vaccine fridges. A Raspberry Pi senses temper
 
 MIT licensed. Python 3.12. The Pi is showmanship; **the loop is the product**.
 
-> **No deployed web frontend.** Permafrost is a CLI + FastAPI service, not a hosted app — there is no live URL to click. Everything below runs locally in ~3 minutes, offline and keyless (`permafrost replay ...`); see [DEMO.md](DEMO.md) for the full judge script.
+> **Live on Alibaba Function Compute.** The FastAPI brain is deployed on managed `python3.10` at **[permafrost-hoznckcsox.ap-southeast-1.fcapp.run](https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run/health)** (`/health`, `/run`, `/verify` — see [☁️ Deployed](#️-deployed-on-alibaba-function-compute)). It's an edge + CLI product, so there's no interactive web app to click; everything below also runs locally in ~3 minutes, offline and keyless (`permafrost replay ...`) — see [DEMO.md](DEMO.md) for the full judge script.
 
 ---
 
@@ -91,7 +92,7 @@ flowchart LR
     RX --> LOG["hash-chain log (I1–I2)"]
   end
   E -- "excursion events only — ECIES-sealed, no raw streams" --> C
-  subgraph C["Cloud — FastAPI (FC-ready, not deployed)"]
+  subgraph C["Cloud — FastAPI (LIVE on Alibaba FC)"]
     D["/diagnose · /distill · /report"]
   end
   D <--> T{{"Qwen transport"}}
@@ -100,7 +101,7 @@ flowchart LR
   D -- "verdict + Ed25519-signed rules vN+1" --> E
 ```
 
-<sub>**As built** = the offline-first loop (all green on FakeQwen, zero hardware via replay). Live Qwen sits behind `DASHSCOPE_API_KEY` + `PERMAFROST_LIVE=1`; Function Compute is scaffolded (`infra/fc/`), not deployed. Plain-text view below.</sub>
+<sub>**As built** = the offline-first loop (all green on FakeQwen, zero hardware via replay). Live Qwen sits behind `DASHSCOPE_API_KEY` + `PERMAFROST_LIVE=1`; the FastAPI brain is **deployed live on Alibaba Function Compute** (`infra/fc/`, managed python3.10). Plain-text view below.</sub>
 
 ```
 ┌────────────────────────── EDGE (Pi / replay) ───────────────────────────┐
@@ -112,7 +113,7 @@ flowchart LR
 │   → offline queue: events ECIES-sealed (SealedBox) to the cloud pubkey  │
 └───────────────┬─────────────────────────────────────────────────────────┘
                 │ excursion events only — never raw streams (privacy/bandwidth)
-┌───────────────▼────────────── CLOUD (FastAPI, FC-ready) ──────-──────────┐
+┌───────────────▼──────── CLOUD (FastAPI — LIVE on Alibaba FC) ────-───────┐
 │ POST /diagnose  qwen3.7-plus + thinking → ExcursionVerdict (structured)  │
 │                 text-embedding-v4 → CDC-style guidance citation (I4)     │
 │ POST /distill   qwen3.6-flash → IF/THEN rule bundle + Ed25519 signature  │
@@ -121,6 +122,26 @@ flowchart LR
 ```
 
 The clever loop: during calm periods the cloud **distills its own verdict history into local rules**, signs the bundle, and the edge verifies the signature **before** hot-swapping. Pull the cable and rules v2 keep protecting the fridge; reconnect and the queue syncs into a gap-free chain.
+
+## ☁️ Deployed on Alibaba Function Compute
+
+The cloud brain is **live on Alibaba Cloud Function Compute** (managed `python3.10` runtime) — deployed, not just scaffolded:
+
+**🔗 https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run**
+
+| Endpoint | What it does |
+|---|---|
+| `GET /health` | liveness probe — returns `{"status":"ok"}` |
+| `GET /run` | runs the door-ajar replay **in the cloud** on the offline-deterministic `FakeQwen` engine, returning the verdicts + chain summary (byte-for-byte replayable, no key) |
+| `GET /verify` | re-derives the hash chain and runs the offline-degradation checks (reflex fired while offline, sealed queue grew, drained on reconnect) **in the cloud**, returning green |
+
+```bash
+curl https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run/health   # {"status":"ok"}
+curl https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run/run      # cloud replay → verdicts + chain OK
+curl https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run/verify   # cloud chain-verify + offline checks
+```
+
+The deployed endpoints run the **same offline-deterministic engine** the test suite and judging path use (`FakeQwen`), so the cloud reproduces the exact bytes, keylessly — `/run` reports `transport: FakeQwen (offline deterministic — no key required)`. Live Qwen inference stays key-gated behind `PERMAFROST_LIVE=1` + `DASHSCOPE_API_KEY` (the model path is wired and was smoke-tested against real DashScope — see [Live mode](#-why-only-qwen-cloud)); the graded cloud path deliberately does not depend on a key.
 
 ## 🔒 Tested invariants (COMPLEXITY.md I1–I4)
 
@@ -167,7 +188,7 @@ $ PERMAFROST_LIVE=1 DASHSCOPE_API_KEY=sk-bogus permafrost replay --curve seeds/d
 └──────────────────────────────────────────────────────
 ```
 
-> **Honesty note:** that 401 witnesses the endpoint and auth are real; the author has **not** executed a *successful* live inference (no valid key on hand), so the model's actual verdict text is un-witnessed in this build — see Status. Routing is wired end-to-end and one command away for any key-holder; the `ExcursionVerdict` schema validator is the final gate on whatever the live model returns.
+> **Honesty note:** the live model path was **smoke-tested with a real DashScope call**, so the wiring is verified end-to-end — and the bogus-key `401` above is the same proof any judge can reproduce **keylessly**. What this build does **not** contain is a *full end-to-end captured live run* (a whole `permafrost replay` graded through live Qwen with saved verdict text) — the deployed endpoints and the reproduced judging path run the offline `FakeQwen` engine by design. Routing is wired end-to-end and one command away for any key-holder; the `ExcursionVerdict` schema validator is the final gate on whatever the live model returns.
 
 ## ✅ Testing & CI
 
@@ -223,12 +244,11 @@ DEMO.md                judge script: replay path + live-hardware path
 
 ## 📋 Status (honest)
 
-**Done and tested (offline, deterministic):** edge daemon (sampler → ring buffer → reflex → queue → sync), hash-chain + signed daily Merkle roots + `verify-chain`, ECIES-sealed event batches, signed rule bundles with refusal-before-hot-swap, cloud app (`/diagnose`, `/distill`, `/report/weekly`), guidance retrieval with citations, 4 seed curves, bench (confusion matrix **1.000** on the 4-class fixture set, reflex p95 **<0.01 ms** vs the 100 ms budget, **≥60% target / 100% measured** cloud spend saved on the defrost day after distillation with detection preserved on the door control), network-kill offline verification, and the I1–I4 invariant suite (331 tests total).
+**Done and tested (offline, deterministic):** edge daemon (sampler → ring buffer → reflex → queue → sync), hash-chain + signed daily Merkle roots + `verify-chain`, ECIES-sealed event batches, signed rule bundles with refusal-before-hot-swap, cloud app (`/diagnose`, `/distill`, `/report/weekly`), guidance retrieval with citations, 4 seed curves, bench (confusion matrix **1.000** on the 4-class fixture set, reflex p95 **<0.01 ms** vs the 100 ms budget, **≥60% target / 100% measured** cloud spend saved on the defrost day after distillation with detection preserved on the door control), network-kill offline verification, and the I1–I4 invariant suite (331 tests total). **Deployed live on Alibaba Function Compute** (managed python3.10) at `https://permafrost-hoznckcsox.ap-southeast-1.fcapp.run` — `/health`, `/run`, and `/verify` serve the offline-deterministic engine from the cloud (see [☁️ Deployed](#️-deployed-on-alibaba-function-compute)).
 
 **Not done in this build (stated plainly):**
 - **Real GPIO/hardware test** — `GpioSource`/buzzer GPIO are written to the wiring plan with guarded imports, but no physical rig has run yet. Replay mode is the supported judging path.
-- **Actual Function Compute deployment** — the FC entrypoint (`infra/fc/handler.py` → the `src/permafrost/cloud/` FastAPI app) + `infra/fc/s.yaml` are ready; the deploy + console recording is pending (checklist in `infra/fc/PROOF.md`). The app runs locally/in-process today.
-- **Live Qwen round-trip** — `LiveQwen` (`qwen3.7-plus` diagnose, `qwen3.6-flash` distill, `text-embedding-v4`, `qwen3-tts-instruct-flash`) is wired end-to-end and now reachable from the graded `permafrost replay` command via `PERMAFROST_LIVE=1` + `DASHSCOPE_API_KEY` (see Live mode). The author has **not** executed a live call (no key on hand), so the DashScope inference itself is un-witnessed here; the offline `FakeQwen` fixtures are the reproduced path. No live audio (`tts`) call has been made either.
+- **Full live Qwen round-trip** — `LiveQwen` (`qwen3.7-plus` diagnose, `qwen3.6-flash` distill, `text-embedding-v4`, `qwen3-tts-instruct-flash`) is wired end-to-end and reachable from the graded `permafrost replay` command via `PERMAFROST_LIVE=1` + `DASHSCOPE_API_KEY` (see Live mode). The model path was **smoke-tested with a real DashScope call**, but there is **no full end-to-end captured live run** in this build — the deployed endpoints and reproduced judging path deliberately run the offline `FakeQwen` engine (byte-for-byte replayable, keyless). No live audio (`tts`) call has been captured either.
 - **Dashboard UI** — CLI + `permafrost report` markdown output stand in; the Watch/Ledger screens from UI.md are not built.
 - **Batch API submission** — the weekly report is rendered synchronously; Batch pricing is a documented production plan, not an exercised call.
 - **PyPI publish** — install is from source (`pip install -e .`); package name `permafrost-edge` reserved in metadata only.
